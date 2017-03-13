@@ -9,6 +9,7 @@ It has the following features:
 - type-safe static compile time query checks
 - since it is static, in an IDE you get code completion for fields
 - and since it is static, if your model changes, your queries break and can be corrected
+- support for joins
 
 # Example:
 
@@ -42,9 +43,23 @@ Annotate every **ManagedEntity** with:
 	@OnyxFields
 	@OnyxJoins
 
-This will add the **Data** subclass to your entity. This **Data** class contains the field, relationship and join methods. It is an implementation of the **MetaData<T>** interface.
+## @OnyxFields
 
-These methods can be used in a **TypedQueryBuilder**. This builder builds an Onyx Query. This is used in combination with the OnyxExtensions static extensions. This extension class provides the **from(PersistenceManager, MetaData<T>)** method, that creates a **TypedQueryBuilder** instance to work with. This class provides the following query functions:
+This Active Annotation will add the **Data** subclass to your entity. This **Data** class contains field and relationship methods, based on the ManagedEntity annotations. It is an implementation of the **MetaData<T>** interface.
+
+## @OnyxJoins
+
+This Active Annotation must always be placed *after* @OnyxFields. It will navigate through the relationships of the entities and for each relationship field found, it will add a method to the **Data** class added by the @OnyxFields annotation.
+
+## From
+
+These methods can be used in a **TypedQueryBuilder**. This builder builds an Onyx Query. This is used in combination with the OnyxExtensions static extensions. This extension class provides the **from(PersistenceManager, MetaData<T>)** method, that creates a **TypedQueryBuilder** instance to work with.
+
+For example:
+
+	val builder = db.from(Person.Data)
+
+This class provides the following query functions:
 
 ## Where
 
@@ -98,5 +113,3 @@ Example:
 		.order [ +street && +houseNr ]
 		.list
 	println(results) // prints addresses
-
-
