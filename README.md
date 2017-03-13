@@ -87,6 +87,12 @@ Example:
 		.from(Address.Data)
 		.where [ street == 'Busystreet' && houseNr >= 20 ]
 
+The @OnyxJoin annotation also lets you use join selectors in queries. For example, given an Address class with a relationship *occupants* of type Person, and each Person entity having a firstName, you can do this:
+
+	db
+		.from(Address.Data)
+		.where [ occuptants_firstName == 'Jason' ]
+
 ## Order
 
 Lets you change the order of the returned entities.
