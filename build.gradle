@@ -20,6 +20,7 @@ task wrapper(type: Wrapper) {
 // CONFIGURE ALL SUBPROJECTS ///////////////////////////////////////////////////
 subprojects {
   apply plugin: 'eclipse'
+  apply plugin: 'idea'
   apply plugin: 'nebula.provided-base'
   apply plugin: 'org.xtext.xtend'
   apply plugin: 'maven-publish'

@@ -36,6 +36,14 @@ It has the following features:
 		
 	println(results)
 
+# Getting Started
+
+This project uses Gradle. In the project root, type:
+
+- *gradle build* - To build the project and run a test.
+- *gradle eclipse* - To generate the Eclipse projects to import.
+- *gradle idea* - To generate the IntelliJ IDEA projects to import.
+
 # Usage
 
 Annotate every **ManagedEntity** with:
