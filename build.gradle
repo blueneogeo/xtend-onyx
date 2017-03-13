@@ -120,7 +120,7 @@ subprojects {
 project('annotations') {
   dependencies {
     // compile 'com.kimengi.util:xtend-tools-core:latest.release'
-	compile 'com.onyxdevtools:onyx-database:1.2.1'
+	compile 'com.onyxdevtools:onyx-database:1.2.2'
   }
 }
 

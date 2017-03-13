@@ -6,12 +6,13 @@ import org.eclipse.xtend.lib.macro.Active
 import org.eclipse.xtend.lib.macro.TransformationContext
 import org.eclipse.xtend.lib.macro.declaration.MutableClassDeclaration
 import org.eclipse.xtend.lib.macro.declaration.TypeReference
+
 import static com.onyx.persistence.annotations.RelationshipType.*
 
 @Active(OnyxJoinsProcessor)
 annotation OnyxJoins {
 
-	int maxDepth = 5
+	int maxJoinDepth = 5
 	
 }
 
@@ -22,6 +23,10 @@ class OnyxJoinsProcessor extends AbstractClassProcessor {
 	override doTransform(MutableClassDeclaration cls, extension TransformationContext context) {
 		
 		// check that @OnyxFields is first
+		
+		// find the annotation
+		val annotation = cls.findAnnotation(OnyxJoins.newTypeReference.type)
+		val maxJoinDepth = annotation.getIntValue('maxJoinDepth')
 		
 		// find the metadata class
 		val metaCls = cls.declaredClasses.findFirst [ simpleName == FIELD_CLASS_NAME ]
@@ -43,7 +48,7 @@ class OnyxJoinsProcessor extends AbstractClassProcessor {
 				case MANY_TO_ONE.name: relationship.type
 			}
 			if(relationshipType === null) relationship.addError('Could not determine type of relationship ' + relationship.simpleName)
-			addJoins(cls, metaCls, #[type -> relationship.simpleName], 3, context)
+			addJoins(cls, metaCls, #[type -> relationship.simpleName], maxJoinDepth, context)
 		}
 	}
 	
@@ -69,29 +74,38 @@ class OnyxJoinsProcessor extends AbstractClassProcessor {
 		val dotPath = path.map [ value ].join('.')
 
 		val relationshipFieldType = Relationship.newTypeReference
-		val relationships = currentTypeMeta
+		val joinFieldType = Join.newTypeReference
+		val methods = currentTypeMeta
 			.declaredResolvedMethods
 			.map [ declaration ]
-			.filter [ returnType.type.simpleName == relationshipFieldType.simpleName ]
+			.filter [ returnType.type.simpleName != joinFieldType.simpleName ]
 
-		for(relationship : relationships) {
-			val type = relationship.returnType.actualTypeArguments.head
-			val name = underscorePath + '_' + relationship.simpleName
-			val join = dotPath + '.' + relationship.simpleName
-			if(metaCls.containsMethod(name)) {
-				metaCls.addMethod(name) [
-					returnType = Join.newTypeReference(type)
-					body = '''return new «returnType»(«type».class, "«join»");'''
-				]
-				val newPath = (path + #[type -> relationship.simpleName]).toList
-				addJoins(cls, metaCls, newPath, depth - 1, context)
+		for(method : methods) {
+			val type = method.returnType.actualTypeArguments.head
+			val name = underscorePath + '_' + method.simpleName
+			if(method.returnType.type.simpleName == relationshipFieldType.simpleName) {
+				val inPath = path.findFirst [ value == method.simpleName ] !== null
+				// it is a relationship. recurse into it to add the relationship target fields as well
+				if(!inPath) { //  && metaCls.containsMethod(name)
+					val newPath = (path + #[type -> method.simpleName]).toList
+					addJoins(cls, metaCls, newPath, depth - 1, context)
+				}
+			} else {
+				// it is a property, add it as a relationship join
+				val join = dotPath + '.' + method.simpleName
+				if(metaCls.containsMethod(name)) {
+					metaCls.addMethod(name) [
+						returnType = Join.newTypeReference(type)
+						body = '''return new «returnType»(«type».class, "«join»");'''
+					]
+				}
 			}
 		}
 		
 	}
 	
 	def static boolean containsMethod(MutableClassDeclaration cls, String methodName) {
-		cls.declaredMethods.findFirst[ simpleName == methodName && parameters.size == 0 ] === null
+		cls.declaredMethods.findFirst [ simpleName == methodName && parameters.size == 0 ] === null
 	}
 	
 }

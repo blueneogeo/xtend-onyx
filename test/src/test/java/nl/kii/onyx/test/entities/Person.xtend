@@ -6,7 +6,6 @@ import com.onyx.persistence.annotations.Entity
 import com.onyx.persistence.annotations.Identifier
 import com.onyx.persistence.annotations.Relationship
 import java.util.Date
-import java.util.List
 import nl.kii.onyx.annotations.OnyxFields
 import nl.kii.onyx.annotations.OnyxJoins
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -19,7 +18,7 @@ class Person extends ManagedEntity {
 
 	@Identifier(generator=SEQUENCE)
 	@Attribute
-	Integer id
+	Long id
 
 	@Attribute(nullable=false)
 	Date dateCreated = new Date
@@ -30,12 +29,15 @@ class Person extends ManagedEntity {
 	@Attribute(nullable=false)
 	String firstName
 
+	@Attribute
+	int age
+
 	@Attribute(nullable=false)
 	String lastName
 
-	@Relationship(type=ONE_TO_MANY, inverseClass=Address, inverse='person', cascadePolicy=ALL, fetchPolicy=LAZY)
-	List<Address> addresses
+	@Relationship(type=MANY_TO_ONE, inverseClass=Address, inverse='occupants', cascadePolicy=ALL)
+	Address address
 
-	override toString() '''«id»: «firstName» «lastName»'''
+	override toString() '''«id»: «firstName» «lastName» age: «age»'''
 
 }

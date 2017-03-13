@@ -5,13 +5,14 @@ import com.onyx.persistence.factory.impl.CacheManagerFactory
 import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.QueryCriteria
 import com.onyx.persistence.query.QueryCriteriaOperator
+import nl.kii.onyx.test.entities.Address
 import nl.kii.onyx.test.entities.Person
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 import static extension nl.kii.onyx.OnyxExtensions.*
-import nl.kii.onyx.test.entities.Address
+import com.onyx.persistence.query.QueryOrder
 
 class TestOnyxExtensions {
 
@@ -44,39 +45,37 @@ class TestOnyxExtensions {
 	@Test
 	def void testQuery() {
 		for(i : 1..50) {
-//			val person = new Person => [ firstName = 'Christian'+i lastName = 'Vogel'+i ]
-//			val address1 = new Address => [ street = 'sluisvaart' houseNr = 98 ]
-//			val address2 = new Address => [ street = 'binnenvaart' houseNr = 4 ]
-			db.saveEntity( new Person => [ firstName = 'Christian'+i lastName = 'Vogel'+i ] )
+			val person = new Person => [ firstName = 'Christian'+i lastName = 'Vogel'+i ]
+			db.saveEntity(person)
 		}
 
-		val c1 = new QueryCriteria('firstName', QueryCriteriaOperator.STARTS_WITH, 'Christian')
-		val c2 = new QueryCriteria('id', QueryCriteriaOperator.GREATER_THAN_EQUAL, 30)
-		val data = db.list(Person, c1.and(c2)) 
+		val c1 = new QueryCriteria('id', QueryCriteriaOperator.GREATER_THAN, 10L)
+		val c2 = new QueryCriteria('id', QueryCriteriaOperator.LESS_THAN, 15L)
+		val data = db.list(Person, c2.and(c1), new QueryOrder('id')) 
 		println(data)
 	}
 
 	@Test
 	def void testXtendQuery() {
 		for(i : 1..50) {
-			db.saveEntity( new Person => [ firstName = 'Christian'+i lastName = 'Vogel'+i ] )
+			db.saveEntity( new Person => [ 
+				firstName = 'Christian'+i 
+				lastName = 'Vogel'+i
+				age = 60 - i
+				address = new Address => [
+					street = 'Sluisvaart'
+					houseNr = 98-i
+				]
+			] )
 		}
-		// println(db.query(Person).list)
-		val christians = db
-			.from (Person.Data)
-			//.select [ firstName + lastName ]
-			.where [ firstName == 'Christian' ]
-//			// .order [ lastName + !firstName ]
+		
+		val results = db
+			.from(Person.Data)
+			.where [ id > 3 && address_houseNr > 20 ]
+			.order [ +id ]
 			.list
-		println(christians)
-
-		val addresses = db
-			.from (Address.Data)
-			//.select [ firstName + lastName ]
-			.where [ person == 'Christian' ]
-//			// .order [ lastName + !firstName ]
-			.list
-		println(addresses)
+		
+		println(results)
 	}
 	
 }

@@ -32,6 +32,10 @@ class OnyxFieldsProcessor extends AbstractClassProcessor {
 		
 		// implement the interface
 		metaCls.implementedInterfaces = metaCls.implementedInterfaces + #[MetaData.newTypeReference(cls.newTypeReference)]
+		metaCls.addMethod('getEntityType') [
+			returnType = Class.newTypeReference(cls.newTypeReference)
+			body = '''return «cls».class;'''
+		]
 
 		// find the attribute fields		
 		val attributes = cls.declaredFields.filter [ 
