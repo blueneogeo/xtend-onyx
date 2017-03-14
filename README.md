@@ -29,11 +29,11 @@ It has the following features:
 	db.saveEntity(person)
 	
 	val results = db
-		.from(Person.Data)
+		.query(Person.Data)
 		.where [ firstName != null && address_houseNr == 99 ]
 		.order [ -id ]
 		.list
-		
+	
 	println(results)
 
 # Getting Started
@@ -44,7 +44,7 @@ This project uses Gradle. In the project root, type:
 - *gradle eclipse* - To generate the Eclipse projects to import.
 - *gradle idea* - To generate the IntelliJ IDEA projects to import.
 
-# Usage
+# Creating a Query
 
 Annotate every **ManagedEntity** with:
 
@@ -59,17 +59,17 @@ This Active Annotation will add the **Data** subclass to your entity. This **Dat
 
 This Active Annotation must always be placed *after* @OnyxFields. It will navigate through the relationships of the entities and for each relationship field found, it will add a method to the **Data** class added by the @OnyxFields annotation.
 
-## From
+## Creating the builder
 
-These methods can be used in a **TypedQueryBuilder**. This builder builds an Onyx Query. This is used in combination with the OnyxExtensions static extensions. This extension class provides the **from(PersistenceManager, MetaData<T>)** method, that creates a **TypedQueryBuilder** instance to work with.
+These methods can be used in a **TypedQueryBuilder**. This builder builds an Onyx Query. This is used in combination with the OnyxExtensions static extensions. This extension class provides the **query(PersistenceManager, MetaData<T>)** method, that creates a **TypedQueryBuilder** instance to work with.
 
 For example:
 
-	val builder = db.from(Person.Data)
+	val builder = db.query(Person.Data)
 
 This class provides the following query functions:
 
-## Where
+## Using where
 
 Lets you filter the stored entities with query criteria.
 
@@ -84,36 +84,61 @@ This translates to new QueryCritera(selector.name, EQUALS_TO, value). Similar ov
 Example:
 
 	db
-		.from(Address.Data)
+		.query(Address.Data)
 		.where [ street == 'Busystreet' && houseNr >= 20 ]
+
+
+If you use where multiple times on a query, it will perform a logical AND between all of your criteria. This has the same result as the query above:
+
+	db
+		.query(Address.Data)
+		.where [ street == 'Busystreet' ]
+		.where [ houseNr >= 20 ]
 
 The @OnyxJoin annotation also lets you use join selectors in queries. For example, given an Address class with a relationship *occupants* of type Person, and each Person entity having a firstName, you can do this:
 
 	db
-		.from(Address.Data)
+		.query(Address.Data)
 		.where [ occuptants_firstName == 'Jason' ]
 
-## Order
+## Using order
 
 Lets you change the order of the returned entities.
 
-	.order( (Metadata<T>)=>List<QueryOrder> )
+	.order( (Metadata<T>)=>QueryOrder … )
 
 The metadata instance provides you with the field and join selectors, and the extension provides you with handy overloads that let you create QueryOrder instances for these selectors. For example:
 
 	+selector // order by the selector in increasing order
 	-selector // order by the selector in decreasing order
 
-You can combine these query orders with &&.
+You can call order multiple times, or pass multiple closures.
 
-Example:
+Examples:
 
 	db
-		.from(Address.Data)
+		.query(Address.Data)
 		.where [ street == 'Busystreet' && houseNr >= 20 ]
-		.order [ +street && +houseNr ] // order first by street and then housenr
+		.order [ +street ]
 
-## List
+To sort first by street ascending, and then houseNr descending:
+
+	db
+		.query(Address.Data)
+		.where [ street == 'Busystreet' && houseNr >= 20 ]
+		.order [ +street ]
+		.order [ -houseNr ]
+
+This has the same result:
+
+	db
+		.query(Address.Data)
+		.where [ street == 'Busystreet' && houseNr >= 20 ]
+		.order ( [ +street ], [ -houseNr ] )
+
+# Getting results
+
+## As a List
 
 Get the results of the query as a **List**.
 
@@ -122,8 +147,78 @@ Get the results of the query as a **List**.
 Example:
 
 	val results = db
-		.from(Address.Data)
+		.query(Address.Data)
 		.where [ street == 'Busystreet' && houseNr >= 20 ]
-		.order [ +street && +houseNr ]
+		.order [ +street ]
 		.list
 	println(results) // prints addresses
+
+## As a lazy List
+
+This performs the same basic function as List, but only gets the matching results and does not yet hydrate them into full entities. The moment you get something from the list, the entity is actually fetched. This can help query large resultsets.
+
+Unlike the Onyx resulted list, this list can be iterated over normally:
+
+	val results = db
+		.query(Address.Data)
+		.lazyList
+	
+	for(result : results) {
+		println(result) // gets and hydrates the result entity
+	}
+
+## Paging Results
+
+There are some properties you can set on the builder to set how to page through results:
+
+- .skip(amount) : skip [amount] results.
+- .limit(amount) : at maximum return [amount] results.
+- .range(first..last) : return only the [first]th to at most the [last]th result.
+- .page(pageNr, resultsPerPage) : get a single page of results, given an amount of results per page.
+
+# Updating entities
+
+You update entities by calling .set [ ] to tell the builder what values to set, and then .update to perform the changes.
+
+## Setting new values
+
+Update an entity attribute. Use the => operator to assign a value inside the closure.
+
+	db.query(User.Data)
+		.set [ username => 'bobby' ]
+		.update // changes all usernames to bobby
+
+You can also perform multiple set commands:
+
+	db.query(User.Data)
+		.set [ username => 'bobby' ]
+		.set [ hobby => 'knitting' ]
+		.update
+
+Or combine them in a single set:
+
+	db.query(User.Data)
+		.set ( [ username => 'bobby' ], [ hobby => 'knitting' ] )
+		.update
+
+Combine setting with .where [ ] to only change some entities:
+
+	db.query(User.Data)
+		.set [ username => 'bobby' ]
+		.where [ username == 'robby' ]
+		.update // changes robby user to bobby
+
+The update call returns the amount of entities that were updated.
+
+# Deleting entities
+
+End a query with .delete to remove all entities that match the query.
+
+	db.query(User.Data)
+		.delete // deletes all users
+
+	db.query(User.Data)
+		.where [ username == 'robby' ]
+		.delete // deletes robby
+
+The delete call returns the amount of entities that were removed.

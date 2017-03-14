@@ -5,6 +5,7 @@ import com.onyx.persistence.factory.impl.CacheManagerFactory
 import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.QueryCriteria
 import com.onyx.persistence.query.QueryCriteriaOperator
+import com.onyx.persistence.query.QueryOrder
 import nl.kii.onyx.test.entities.Address
 import nl.kii.onyx.test.entities.Person
 import org.junit.After
@@ -12,7 +13,6 @@ import org.junit.Before
 import org.junit.Test
 
 import static extension nl.kii.onyx.OnyxExtensions.*
-import com.onyx.persistence.query.QueryOrder
 
 class TestOnyxExtensions {
 
@@ -68,14 +68,25 @@ class TestOnyxExtensions {
 				]
 			] )
 		}
+
+		db.query(Person.Data)
+			.where [ id > 5 ]
+			.delete
 		
-		val results = db
-			.from(Person.Data)
-			.where [ id > 3 && address_houseNr > 20 ]
-			.order [ +id ]
-			.list
+		db.query(Person.Data)
+			.set [ firstName => 'Jacob' ]
+			.where [ firstName == 'Christian2' ]
+			.update
 		
-		println(results)
+		val results = db.query(Person.Data)
+			.select([id], [firstName])
+			// .where [ id > 3 && address_houseNr > 20 ]
+			.order([-id], [-address_houseNr])
+			.lazyList
+		
+		for(result : results) {
+			println(result)
+		}
 	}
 	
 }

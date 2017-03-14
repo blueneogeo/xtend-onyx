@@ -4,15 +4,16 @@ import com.onyx.persistence.ManagedEntity
 import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.QueryCriteria
 import com.onyx.persistence.query.QueryCriteriaOperator
+import com.onyx.persistence.query.QueryOrder
+import com.onyx.persistence.update.AttributeUpdate
 import nl.kii.onyx.annotations.MetaData
 import nl.kii.onyx.annotations.Selector
-import com.onyx.persistence.query.QueryOrder
-import java.util.List
+import nl.kii.onyx.annotations.Field
 
 class OnyxExtensions {
 	
 	/** Create a query */
-	def static <T extends ManagedEntity, M extends MetaData<T>> TypedQueryBuilder<T, M> from(PersistenceManager session, Class<M> metaDataType) {
+	def static <T extends ManagedEntity, M extends MetaData<T>> TypedQueryBuilder<T, M> query(PersistenceManager session, Class<M> metaDataType) {
 		new TypedQueryBuilder(session, metaDataType)
 	}
 	
@@ -133,21 +134,39 @@ class OnyxExtensions {
 	def static notStartsWith(Selector<String> selector, String value) {
 		new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_STARTS_WITH, value)
 	}
+	
+	// QUERY UPDATES //////////////////////////////////////////////////////////
+	
+	/** Assign the new value to the selected field */
+	def static =>(Field<String> selector, String value) {
+		new AttributeUpdate(selector.name, value)
+	}	
+
+	/** Assign the new value to the selected field */
+	def static =>(Field<Long> selector, long value) {
+		new AttributeUpdate(selector.name, value)
+	}
+
+	/** Assign the new value to the selected field */
+	def static =>(Field<Integer> selector, int value) {
+		new AttributeUpdate(selector.name, value)
+	}
+
+	/** Assign the new value to the selected field */
+	def static =>(Field<Double> selector, double value) {
+		new AttributeUpdate(selector.name, value)
+	}
 
 	// QUERY ORDER ////////////////////////////////////////////////////////////
 	
 	/** In ascending order */
 	def static +(Selector<?> selector) {
-		#[new QueryOrder(selector.name, false)]
+		new QueryOrder(selector.name, true)
 	}
 
 	/** In descending order */
 	def static -(Selector<?> selector) {
-		#[new QueryOrder(selector.name, true)]
-	}
-
-	def static &&(List<QueryOrder> o1, List<QueryOrder> o2) {
-		(o1 + o2).toList
+		new QueryOrder(selector.name, false)
 	}
 	
 }
