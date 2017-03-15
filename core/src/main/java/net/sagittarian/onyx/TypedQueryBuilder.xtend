@@ -8,9 +8,11 @@ import com.onyx.persistence.query.QueryOrder
 import com.onyx.persistence.update.AttributeUpdate
 import java.util.AbstractList
 import java.util.List
+import java.util.Map
 import net.sagittarian.onyx.annotations.Fluent
-import net.sagittarian.onyx.metadata.Field
 import net.sagittarian.onyx.metadata.MetaData
+import net.sagittarian.onyx.metadata.Selector
+import net.sagittarian.onyx.metadata.Field
 
 /**
  * Lets you build Onyx queries with static code, using the Data metadata
@@ -49,7 +51,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	val Class<M> metaType
 	val M metadata
 
-	List<Field<?>> fields
+	List<Selector<?>> fields
 	QueryCriteria criteria
 	List<AttributeUpdate<?>> updates
 	List<QueryOrder> orders
@@ -68,23 +70,6 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 		this.metadata = metaType.newInstance
 	}
 	
-	/** 
-	 * Hydrate only the passed fields of the found entities.
-	 * Pass each field inside a closure to get code completion
-	 * of the possible fields.
-	 * <p>
-	 * <pre>Example: 
-	 * db.query(User.Data)
-	 *    .select([id], [username])
-	 *    .list
-	 */
-	@Fluent
-	def TypedQueryBuilder<T, M> select((M)=>Field<?>... fieldFns) {
-		if(fields === null) fields = newLinkedList
-		fields.addAll(fieldFns.map [ apply(metadata) ])
-		this
-	}
-
 	@Fluent
 	def TypedQueryBuilder<T, M> where((M)=>QueryCriteria... criteriaFns) {
 		val newCriteria = criteriaFns.map [ apply(metadata) ]
@@ -232,6 +217,41 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 			}
 			
 		}
+	}
+
+	/**
+	 * Get all results as a list of values.
+	 * <p>
+	 * Get only the passed field of the found entities.
+	 * Pass each field inside a closure to get code completion
+	 * of the possible fields.
+	 * <p>
+	 * <pre>Example: 
+	 * db.query(User.Data)
+	 *    .list [username]
+	 */
+	def <E> List<E> list((M)=>Field<E> fieldFn) {
+		val field = fieldFn.apply(metadata)
+		val fieldName = field.name
+		fields = #[field]
+		val List<Map<String, E>> list = session.executeQuery(build)
+		list.map [ get(fieldName) as E ]
+	}
+
+	/**
+	 * Get all results as a list of fieldname->value mappings.
+	 * <p>
+	 * Get only the passed fields of the found entities.
+	 * Pass each field inside a closure to get code completion
+	 * of the possible fields.
+	 * <p>
+	 * <pre>Example: 
+	 * db.query(User.Data)
+	 *    .list([id], [username])
+	 */
+	def List<Map<String, ?>> list((M)=>Field<?>... fieldFns) {
+		fields = fieldFns.map [ apply(metadata) ]
+		session.executeQuery(build)
 	}
 	
 	/** 

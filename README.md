@@ -183,33 +183,23 @@ Unlike the Onyx resulted list, this list can be iterated over normally:
 		println(result) // gets and hydrates the result entity
 	}
 
-## Selecting fields
+## A list of selected fields
 
-To tune performance, you can tell Onyx to only hydrate the fields you are interested in for each fetched entity.
+To tune performance, you can tell Onyx to only fetch the fields you are interested in for each fetched entity.
 
-	.select( (MetaData)=>Field<?>… fieldFns )
+	.list( (MetaData)=>Field<?>… fieldFns )
 
 For example, to only fetch the firstName for each entity:
 
-	val results = db
+	val List<String> results = db
 		.query(User.Data)
-		.select [ firstName ]
-		.list
+		.list [ firstName ]
 
-You can perform select multiple times, every time will add a field:
+You can also select multiple fields, in which case you will get a list of map<field, value>.
 
-	val results = db
+	val List<Map<String, ?> results = db
 		.query(User.Data)
-		.select [ firstName ]
-		.select [ lastName ]
-		.list
-
-You can also pass them both at once like this:
-
-	val results = db
-		.query(User.Data)
-		.select( [ firstName ], [ lastName ])
-		.list
+		.list( [ firstName ], [ lastName ])
 
 ## The first result
 

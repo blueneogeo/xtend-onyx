@@ -97,6 +97,7 @@ class OnyxJoinsProcessor extends AbstractClassProcessor {
 				val join = dotPath + '.' + method.simpleName
 				if(metaCls.containsMethod(name)) {
 					metaCls.addMethod(name) [
+						primarySourceElement = currentType
 						returnType = Join.newTypeReference(type)
 						body = '''return new «returnType»(«type».class, "«join»");'''
 					]

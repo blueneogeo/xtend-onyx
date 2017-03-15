@@ -68,25 +68,33 @@ class TestOnyxExtensions {
 				]
 			] )
 		}
-
-		db.query(Person.Data)
-			.where [ id > 5 ]
-			.delete
 		
-		db.query(Person.Data)
-			.set [ firstName => 'Jacob' ]
-			.where [ firstName == 'Christian2' ]
-			.update
-		
-		val results = db.query(Person.Data)
-			.select([id], [firstName])
-			// .where [ id > 3 && address_houseNr > 20 ]
-			.order([-id], [-address_houseNr])
-			.lazyList
+		val results = db.query(Address.Data)
+			.order [ +houseNr ]
+			.list ( [ street ], [ houseNr ] )
 		
 		for(result : results) {
 			println(result)
-		}
+		}		
+//
+//		db.query(Person.Data)
+//			.where [ id > 5 ]
+//			.delete
+//		
+//		db.query(Person.Data)
+//			.set [ firstName => 'Jacob' ]
+//			.where [ firstName == 'Christian2' ]
+//			.update
+//		
+//		val results = db.query(Person.Data)
+//			.select([id], [firstName])
+//			// .where [ id > 3 && address_houseNr > 20 ]
+//			.order([-id], [-address_houseNr])
+//			.lazyList
+//		
+//		for(result : results) {
+//			println(result)
+//		}
 	}
 
 	@Test
