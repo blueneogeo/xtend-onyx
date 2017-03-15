@@ -69,7 +69,21 @@ For example:
 
 	val builder = db.query(Person.Data)
 
-This class provides the following query functions:
+This builder can be given query commands to filter entities, such as:
+
+	.select
+	.where
+	.order
+
+After setting these properties as well as others, you can call .build too generate the Onyx Query. However, unless you want to re-use an Onyx Query object, you will normally directly call one of the following:
+
+	.list
+	.lazyList
+	.first
+	.update
+	.delete
+
+Below is an explanation of how to use each of the operations the builder provides.
 
 ## Using where
 
@@ -168,6 +182,34 @@ Unlike the Onyx resulted list, this list can be iterated over normally:
 	for(result : results) {
 		println(result) // gets and hydrates the result entity
 	}
+
+## Selecting fields
+
+To tune performance, you can tell Onyx to only hydrate the fields you are interested in for each fetched entity.
+
+	.select( (MetaData)=>Field<?>… fieldFns )
+
+For example, to only fetch the firstName for each entity:
+
+	val results = db
+		.query(User.Data)
+		.select [ firstName ]
+		.list
+
+You can perform select multiple times, every time will add a field:
+
+	val results = db
+		.query(User.Data)
+		.select [ firstName ]
+		.select [ lastName ]
+		.list
+
+You can also pass them both at once like this:
+
+	val results = db
+		.query(User.Data)
+		.select( [ firstName ], [ lastName ])
+		.list
 
 ## The first result
 
