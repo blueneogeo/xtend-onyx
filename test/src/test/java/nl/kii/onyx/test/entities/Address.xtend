@@ -29,6 +29,6 @@ class Address extends ManagedEntity {
 	@Relationship(type=ONE_TO_MANY, inverseClass=Person, inverse='address', cascadePolicy=ALL, fetchPolicy=LAZY)
 	List<Person> occupants
 
-	override toString() '''«id»: «street» «houseNr»'''
+	override toString() '''«id»: «street» «houseNr», occupants: «occupants?.map[toString]»'''
 
 }

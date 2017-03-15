@@ -1,16 +1,32 @@
 package nl.kii.onyx
 
+import com.onyx.exception.EntityException
+import com.onyx.persistence.IManagedEntity
 import com.onyx.persistence.ManagedEntity
 import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.QueryCriteria
-import com.onyx.persistence.query.QueryCriteriaOperator
 import com.onyx.persistence.query.QueryOrder
 import com.onyx.persistence.update.AttributeUpdate
+import java.util.Date
+import java.util.List
+import nl.kii.onyx.annotations.Field
 import nl.kii.onyx.annotations.MetaData
 import nl.kii.onyx.annotations.Selector
-import nl.kii.onyx.annotations.Field
+
+import static com.onyx.persistence.query.QueryCriteriaOperator.*
 
 class OnyxExtensions {
+	
+	/** Same as saveEntity, but typed */
+	def static <T extends IManagedEntity> T save(PersistenceManager db, T entity) throws EntityException {
+		db.saveEntity(entity) as T
+	}
+
+	/** Same as saveEntities, but typed and returns the indexed entities */
+	def static <T extends IManagedEntity> List<T> save(PersistenceManager db, List<T> entities) throws EntityException {
+		db.saveEntities(entities)
+		entities
+	}
 	
 	/** Create a query */
 	def static <T extends ManagedEntity, M extends MetaData<T>> TypedQueryBuilder<T, M> query(PersistenceManager session, Class<M> metaDataType) {
@@ -27,112 +43,372 @@ class OnyxExtensions {
 		q1.or(q2)
 	}
 	
+	// equals //
+	
 	def static ==(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.EQUAL, value)
+		new QueryCriteria(selector.name, EQUAL, value)
 	}
 
 	def static ==(Selector<Long> selector, long value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.EQUAL, value)
+		new QueryCriteria(selector.name, EQUAL, value)
 	}
 
 	def static ==(Selector<Integer> selector, int value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.EQUAL, value)
+		new QueryCriteria(selector.name, EQUAL, value)
 	}
 
-	def static ==(Selector<Double> selector, double value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.EQUAL, value)
+	def static ==(Selector<Boolean> selector, boolean value) {
+		new QueryCriteria(selector.name, EQUAL, value)
 	}
+
+	def static ==(Selector<Date> selector, Date value) {
+		new QueryCriteria(selector.name, EQUAL, value)
+	}
+
+	def static ==(Selector<Float> selector, float value) {
+		new QueryCriteria(selector.name, EQUAL, value)
+	}
+
+	def static ==(Selector<Byte> selector, byte value) {
+		new QueryCriteria(selector.name, EQUAL, value)
+	}
+
+	def static ==(Selector<Short> selector, short value) {
+		new QueryCriteria(selector.name, EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> ==(Selector<F> selector, F value) {
+		new QueryCriteria(selector.name, EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> ==(Selector<List<F>> selector, List<F> value) {
+		new QueryCriteria(selector.name, EQUAL, newLinkedList(value)) // hack around generic issue
+	}
+
+	def static <E extends Enum<?>> ==(Selector<E> selector, E value) {
+		new QueryCriteria(selector.name, EQUAL, value)
+	}
+
+	// not equals //
 
 	def static !=(Selector<String> selector, String value) {
-		if(value === null) new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_NULL)
-		else new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_EQUAL, value)
+		if(value === null) new QueryCriteria(selector.name, NOT_NULL)
+		else new QueryCriteria(selector.name, NOT_EQUAL, value)
 	}
 
 	def static !=(Selector<Long> selector, Long value) {
-		if(value === null) new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_NULL)
-		else new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_EQUAL, value)
+		if(value === null) new QueryCriteria(selector.name, NOT_NULL)
+		else new QueryCriteria(selector.name, NOT_EQUAL, value)
 	}
 
 	def static !=(Selector<Integer> selector, Integer value) {
-		if(value === null) new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_NULL)
-		else new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_EQUAL, value)
+		if(value === null) new QueryCriteria(selector.name, NOT_NULL)
+		else new QueryCriteria(selector.name, NOT_EQUAL, value)
 	}
 
 	def static !=(Selector<Double> selector, Double value) {
-		if(value === null) new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_NULL)
-		else new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_EQUAL, value)
+		if(value === null) new QueryCriteria(selector.name, NOT_NULL)
+		else new QueryCriteria(selector.name, NOT_EQUAL, value)
 	}
 
+	def static !=(Selector<Boolean> selector, boolean value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	def static !=(Selector<Date> selector, Date value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	def static !=(Selector<Float> selector, float value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	def static !=(Selector<Byte> selector, byte value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	def static !=(Selector<Short> selector, short value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> !=(Selector<F> selector, F value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> !=(Selector<List<F>> selector, List<F> value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, newLinkedList(value))
+	}
+
+	def static <E extends Enum<?>> !=(Selector<E> selector, E value) {
+		new QueryCriteria(selector.name, NOT_EQUAL, value)
+	}
+
+	// larger than //
+
 	def static >(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN, value)
+		new QueryCriteria(selector.name, GREATER_THAN, value)
 	}
 
 	def static >(Selector<Long> selector, long value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN, value)
+		new QueryCriteria(selector.name, GREATER_THAN, value)
 	}
 
 	def static >(Selector<Integer> selector, int value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN, value)
+		new QueryCriteria(selector.name, GREATER_THAN, value)
 	}
 
 	def static >(Selector<Double> selector, double value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN, value)
+		new QueryCriteria(selector.name, GREATER_THAN, value)
 	}
 
+	def static >(Selector<Boolean> selector, boolean value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	def static >(Selector<Date> selector, Date value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	def static >(Selector<Float> selector, float value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	def static >(Selector<Byte> selector, byte value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	def static >(Selector<Short> selector, short value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	def static <F extends ManagedEntity> >(Selector<F> selector, F value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	def static <F extends ManagedEntity> >(Selector<List<F>> selector, List<F> value) {
+		new QueryCriteria(selector.name, GREATER_THAN, newLinkedList(value))
+	}
+
+	def static <E extends Enum<?>> >(Selector<E> selector, E value) {
+		new QueryCriteria(selector.name, GREATER_THAN, value)
+	}
+
+	// larger or equals //
+
 	def static >=(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
 	}
 
 	def static >=(Selector<Long> selector, long value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
 	}
 
 	def static >=(Selector<Integer> selector, int value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
 	}
 
 	def static >=(Selector<Double> selector, double value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.GREATER_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
 	}
 
+	def static >=(Selector<Boolean> selector, boolean value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	def static >=(Selector<Date> selector, Date value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	def static >=(Selector<Float> selector, float value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	def static >=(Selector<Byte> selector, byte value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	def static >=(Selector<Short> selector, short value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> >=(Selector<F> selector, F value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> >=(Selector<List<F>> selector, List<F> value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, newLinkedList(value))
+	}
+
+	def static <E extends Enum<?>> >=(Selector<E> selector, E value) {
+		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
+	}
+
+	// smaller than //
+
 	def static <(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN, value)
+		new QueryCriteria(selector.name, LESS_THAN, value)
 	}
 
 	def static <(Selector<Long> selector, long value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN, value)
+		new QueryCriteria(selector.name, LESS_THAN, value)
 	}
 
 	def static <(Selector<Integer> selector, int value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN, value)
+		new QueryCriteria(selector.name, LESS_THAN, value)
 	}
 
 	def static <(Selector<Double> selector, double value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN, value)
+		new QueryCriteria(selector.name, LESS_THAN, value)
 	}
 
+	def static <(Selector<Boolean> selector, boolean value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	def static <(Selector<Date> selector, Date value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	def static <(Selector<Float> selector, float value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	def static <(Selector<Byte> selector, byte value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	def static <(Selector<Short> selector, short value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	def static <F extends ManagedEntity> <(Selector<F> selector, F value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	def static <F extends ManagedEntity> <(Selector<List<F>> selector, List<F> value) {
+		new QueryCriteria(selector.name, LESS_THAN, newLinkedList(value))
+	}
+
+	def static <E extends Enum<?>> <(Selector<E> selector, E value) {
+		new QueryCriteria(selector.name, LESS_THAN, value)
+	}
+
+	// smaller or equals //
+
 	def static <=(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
 	}
 
 	def static <=(Selector<Long> selector, long value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
 	}
 
 	def static <=(Selector<Integer> selector, int value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
 	}
 
 	def static <=(Selector<Double> selector, double value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.LESS_THAN_EQUAL, value)
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <=(Selector<Boolean> selector, boolean value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <=(Selector<Date> selector, Date value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <=(Selector<Float> selector, float value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <=(Selector<Byte> selector, byte value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <=(Selector<Short> selector, short value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <F extends ManagedEntity> <=(Selector<F> selector, F value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+	def static <=(Selector<List<?>> selector, List<?> value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, newLinkedList(value))
+	}
+
+	def static <E extends Enum<?>> <=(Selector<E> selector, E value) {
+		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	}
+
+//	// contains //
+//
+//	def static contains(Selector<List<String>> selector, String value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Long>> selector, long value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Integer>> selector, int value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Double>> selector, double value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Boolean>> selector, boolean value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Date>> selector, Date value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Float>> selector, float value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Byte>> selector, byte value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static contains(Selector<List<Short>> selector, short value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static <F extends ManagedEntity> contains(Selector<List<F>> selector, F value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+//
+//	def static <E extends Enum<?>> contains(Selector<List<E>> selector, E value) {
+//		new QueryCriteria(selector.name, CONTAINS, value)
+//	}
+	
+	// other string operations //
+
+	def static contains(Selector<String> selector, String value) {
+		new QueryCriteria(selector.name, CONTAINS, value)
+	}
+
+	def static matches(Selector<String> selector, String value) {
+		new QueryCriteria(selector.name, MATCHES, value)
+	}
+
+	def static like(Selector<String> selector, String value) {
+		new QueryCriteria(selector.name, LIKE, value)
 	}
 
 	def static startsWith(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.STARTS_WITH, value)
+		new QueryCriteria(selector.name, STARTS_WITH, value)
 	}
 
 	def static notStartsWith(Selector<String> selector, String value) {
-		new QueryCriteria(selector.name, QueryCriteriaOperator.NOT_STARTS_WITH, value)
+		new QueryCriteria(selector.name, NOT_STARTS_WITH, value)
 	}
 	
 	// QUERY UPDATES //////////////////////////////////////////////////////////

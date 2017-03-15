@@ -88,5 +88,29 @@ class TestOnyxExtensions {
 			println(result)
 		}
 	}
+
+	@Test
+	def void testXtendQuery2() {
+		val person1 = db.save( new Person => [
+			firstName = 'Sally'
+			lastName = 'Sad'
+		])
+		val person2 = db.save( new Person => [
+			firstName = 'Jason'
+			lastName = 'Bourne'
+		])
+		val address = db.save( new Address => [
+			street = 'Bourbon street'
+			houseNr = 1
+			occupants = #[ person1, person2 ]
+		])
+		println(address)
+		
+//		val results = db.query(Address.Data)
+//			.where [ occupants_firstName == 'Sally' ]
+//			.list
+//		println(results)
+		
+	}
 	
 }

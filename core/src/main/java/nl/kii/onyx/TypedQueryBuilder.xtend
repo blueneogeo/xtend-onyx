@@ -55,6 +55,8 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	List<QueryOrder> orders
 	Integer firstRow
 	Integer maxResults
+	Integer pageNr
+	IntegerRange range
 	Object partition
 	
 	/**
@@ -159,8 +161,7 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	 */	
 	@Fluent
 	def TypedQueryBuilder<T, M> range(IntegerRange range) {
-		this.firstRow = range.start - 1
-		this.maxResults = range.size
+		this.range = range
 		this
 	}
 
@@ -170,9 +171,8 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	 * For example: page(2, 3) only returns the 4th, 5th and 6th result.
 	 */	
 	@Fluent
-	def TypedQueryBuilder<T, M> page(int pageNr, int entitiesPerPage) {
-		this.firstRow = (pageNr-1) * entitiesPerPage
-		this.maxResults = entitiesPerPage
+	def TypedQueryBuilder<T, M> page(int pageNr) {
+		this.pageNr = pageNr
 		this
 	}
 	
@@ -198,6 +198,13 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 			if(maxResults !== null) it.maxResults = maxResults
 			if(firstRow !== null) it.firstRow = firstRow
 			if(partition !== null) it.partition = partition
+			if(range !== null) {
+				it.firstRow = it.firstRow + range.start - 1
+				it.maxResults = Math.min(range.size, it.maxResults) 
+			}
+			if(pageNr !== null && maxResults !== null) {
+				it.firstRow = ((pageNr - 1) * it.maxResults) + it.firstRow
+			}
 		]
 	}
 
@@ -223,6 +230,14 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 			}
 			
 		}
+	}
+	
+	/** 
+	 * Gets the first matching result, or null if there is no result. 
+	 */
+	def T first() {
+		maxResults = 1
+		session.executeQuery(build)?.head
 	}
 
 	/**

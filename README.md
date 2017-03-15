@@ -44,7 +44,7 @@ This project uses Gradle. In the project root, type:
 - *gradle eclipse* - To generate the Eclipse projects to import.
 - *gradle idea* - To generate the IntelliJ IDEA projects to import.
 
-# Creating a Query
+# Setting up entities
 
 Annotate every **ManagedEntity** with:
 
@@ -58,6 +58,8 @@ This Active Annotation will add the **Data** subclass to your entity. This **Dat
 ## @OnyxJoins
 
 This Active Annotation must always be placed *after* @OnyxFields. It will navigate through the relationships of the entities and for each relationship field found, it will add a method to the **Data** class added by the @OnyxFields annotation.
+
+# Querying entities
 
 ## Creating the builder
 
@@ -167,14 +169,20 @@ Unlike the Onyx resulted list, this list can be iterated over normally:
 		println(result) // gets and hydrates the result entity
 	}
 
-## Paging Results
+## The first result
+
+To simply get the first result only, perform .first:
+
+	println(db.query(Address.Data).first)
+
+## Limiting results
 
 There are some properties you can set on the builder to set how to page through results:
 
 - .skip(amount) : skip [amount] results.
 - .limit(amount) : at maximum return [amount] results.
-- .range(first..last) : return only the [first]th to at most the [last]th result.
-- .page(pageNr, resultsPerPage) : get a single page of results, given an amount of results per page.
+- .page(pageNr) : get a single page of results, given an amount of results per page you set with limit. This can also be combined with skip, the paging will then start after the skipped entities.
+- .range(first..last) : return only the [first]th to at most the [last]th result. Also combines with skip and limit, in that it will start counting after the skipped entities, and return at most limit entities.
 
 # Updating entities
 
