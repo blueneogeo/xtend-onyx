@@ -86,12 +86,14 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	}
 
 	@Fluent
-	def TypedQueryBuilder<T, M> where((M)=>QueryCriteria criteriaFn) {
-		val newCriteria = criteriaFn.apply(metadata)
-		if(this.criteria === null) {
-			this.criteria = newCriteria
-		} else {
-			this.criteria.and(newCriteria)
+	def TypedQueryBuilder<T, M> where((M)=>QueryCriteria... criteriaFns) {
+		val newCriteria = criteriaFns.map [ apply(metadata) ]
+		for(newCriterium : newCriteria) {
+			if(this.criteria === null) {
+				this.criteria = newCriterium
+			} else {
+				this.criteria.and(newCriterium)
+			}
 		}
 		this
 	}
