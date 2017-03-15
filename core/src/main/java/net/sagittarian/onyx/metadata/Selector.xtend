@@ -1,4 +1,4 @@
-package nl.kii.onyx.annotations
+package net.sagittarian.onyx.metadata
 
 interface Selector<T> {
 

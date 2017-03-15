@@ -1,6 +1,9 @@
-package nl.kii.onyx.annotations
+package net.sagittarian.onyx.annotations
 
 import com.onyx.persistence.annotations.Attribute
+import com.onyx.persistence.annotations.Relationship
+import net.sagittarian.onyx.metadata.Field
+import net.sagittarian.onyx.metadata.MetaData
 import org.eclipse.xtend.lib.macro.AbstractClassProcessor
 import org.eclipse.xtend.lib.macro.Active
 import org.eclipse.xtend.lib.macro.RegisterGlobalsContext
@@ -25,7 +28,7 @@ class OnyxFieldsProcessor extends AbstractClassProcessor {
 
 	override doTransform(MutableClassDeclaration cls, extension TransformationContext context) {
 		
-		val relationshipAnnotation = com.onyx.persistence.annotations.Relationship.newTypeReference 
+		val relationshipAnnotation = Relationship.newTypeReference 
 		
 		// find the metadata class
 		val metaCls = cls.declaredClasses.findFirst [ simpleName == FIELD_CLASS_NAME ]
@@ -69,7 +72,7 @@ class OnyxFieldsProcessor extends AbstractClassProcessor {
 				case ONE_TO_ONE.name: relationship.type
 				case MANY_TO_ONE.name: relationship.type
 			}
-			val fieldType = Relationship.newTypeReference(type) 
+			val fieldType = net.sagittarian.onyx.metadata.Relationship.newTypeReference(type) 
 			metaCls.addMethod(relationship.simpleName) [
 				primarySourceElement = relationship
 				returnType = fieldType

@@ -1,4 +1,4 @@
-package nl.kii.onyx.test.entities
+package net.sagittarian.onyx.test.entities
 
 import com.onyx.persistence.ManagedEntity
 import com.onyx.persistence.annotations.Attribute
@@ -6,8 +6,8 @@ import com.onyx.persistence.annotations.Entity
 import com.onyx.persistence.annotations.Identifier
 import com.onyx.persistence.annotations.Relationship
 import java.util.List
-import nl.kii.onyx.annotations.OnyxFields
-import nl.kii.onyx.annotations.OnyxJoins
+import net.sagittarian.onyx.annotations.OnyxFields
+import net.sagittarian.onyx.annotations.OnyxJoins
 import org.eclipse.xtend.lib.annotations.Accessors
 
 @OnyxFields

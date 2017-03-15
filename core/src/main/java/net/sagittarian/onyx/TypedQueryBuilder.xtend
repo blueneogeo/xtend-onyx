@@ -1,6 +1,6 @@
-package nl.kii.onyx
+package net.sagittarian.onyx
 
-import com.onyx.persistence.ManagedEntity
+import com.onyx.persistence.IManagedEntity
 import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.Query
 import com.onyx.persistence.query.QueryCriteria
@@ -8,9 +8,9 @@ import com.onyx.persistence.query.QueryOrder
 import com.onyx.persistence.update.AttributeUpdate
 import java.util.AbstractList
 import java.util.List
-import nl.kii.onyx.annotations.Field
-import nl.kii.onyx.annotations.Fluent
-import nl.kii.onyx.annotations.MetaData
+import net.sagittarian.onyx.annotations.Fluent
+import net.sagittarian.onyx.metadata.Field
+import net.sagittarian.onyx.metadata.MetaData
 
 /**
  * Lets you build Onyx queries with static code, using the Data metadata
@@ -43,11 +43,11 @@ import nl.kii.onyx.annotations.MetaData
  * }
  * </pre>
  */
-class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
+class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	
 	val PersistenceManager session
 	val Class<M> metaType
-	val M metaTypeInstance
+	val M metadata
 
 	List<Field<?>> fields
 	QueryCriteria criteria
@@ -65,7 +65,7 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	new(PersistenceManager session, Class<M> metaType) {
 		this.session = session
 		this.metaType = metaType
-		this.metaTypeInstance = metaType.newInstance
+		this.metadata = metaType.newInstance
 	}
 	
 	/** 
@@ -81,13 +81,13 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	@Fluent
 	def TypedQueryBuilder<T, M> select((M)=>Field<?>... fieldFns) {
 		if(fields === null) fields = newLinkedList
-		fields.addAll(fieldFns.map [ apply(metaTypeInstance) ])
+		fields.addAll(fieldFns.map [ apply(metadata) ])
 		this
 	}
 
 	@Fluent
 	def TypedQueryBuilder<T, M> where((M)=>QueryCriteria criteriaFn) {
-		val newCriteria = criteriaFn.apply(metaTypeInstance)
+		val newCriteria = criteriaFn.apply(metadata)
 		if(this.criteria === null) {
 			this.criteria = newCriteria
 		} else {
@@ -112,7 +112,7 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	@Fluent
 	def TypedQueryBuilder<T, M> order((M)=>QueryOrder... orderFns) {
 		if(orders === null) orders = newLinkedList
-		orders.addAll(orderFns.map [ apply(metaTypeInstance) ])
+		orders.addAll(orderFns.map [ apply(metadata) ])
 		this 
 	}
 	
@@ -132,7 +132,7 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	@Fluent
 	def TypedQueryBuilder<T, M> set((M)=>AttributeUpdate<?>... updateFns) {
 		if(updates === null) updates = newLinkedList
-		updates.addAll(updateFns.map [ apply(metaTypeInstance) ])
+		updates.addAll(updateFns.map [ apply(metadata) ])
 		this
 	}
 
@@ -190,7 +190,7 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	 * This also allows you to reuse a query for performance.
 	 */	
 	def build() {
-		new Query(metaTypeInstance.entityType) => [
+		new Query(metadata.entityType) => [
 			if(fields !== null) it.selections = fields.map [ name ]
 			if(criteria !== null) it.criteria = criteria
 			if(updates !== null) it.updates = newLinkedList(updates) // hack around generic type warning
@@ -237,7 +237,8 @@ class TypedQueryBuilder<T extends ManagedEntity, M extends MetaData<T>> {
 	 */
 	def T first() {
 		maxResults = 1
-		session.executeQuery(build)?.head
+		val List<T> list = session.executeQuery(build)
+		list.head
 	}
 
 	/**

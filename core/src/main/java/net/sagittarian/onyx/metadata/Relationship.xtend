@@ -1,4 +1,4 @@
-package nl.kii.onyx.annotations
+package net.sagittarian.onyx.metadata
 
 import org.eclipse.xtend.lib.annotations.Data
 

@@ -1,4 +1,4 @@
-package nl.kii.onyx.annotations
+package net.sagittarian.onyx.annotations
 
 import java.lang.annotation.Target
 

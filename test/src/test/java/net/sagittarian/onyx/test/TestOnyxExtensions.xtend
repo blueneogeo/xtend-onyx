@@ -1,4 +1,4 @@
-package nl.kii.onyx.test
+package net.sagittarian.onyx.test
 
 import com.onyx.persistence.factory.PersistenceManagerFactory
 import com.onyx.persistence.factory.impl.CacheManagerFactory
@@ -6,13 +6,13 @@ import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.QueryCriteria
 import com.onyx.persistence.query.QueryCriteriaOperator
 import com.onyx.persistence.query.QueryOrder
-import nl.kii.onyx.test.entities.Address
-import nl.kii.onyx.test.entities.Person
+import net.sagittarian.onyx.test.entities.Address
+import net.sagittarian.onyx.test.entities.Person
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import static extension nl.kii.onyx.OnyxExtensions.*
+import static extension net.sagittarian.onyx.OnyxExtensions.*
 
 class TestOnyxExtensions {
 

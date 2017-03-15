@@ -1,109 +1,99 @@
-// SETUP BUILDSCRIPT ///////////////////////////////////////////////////////////
 buildscript {
-  repositories {
-    jcenter()
-    maven {
-	 url 'https://plugins.gradle.org/m2/'
-    }
-  }
+	repositories {
+		jcenter()
+		maven { url 'https://plugins.gradle.org/m2/' }
+	}
 
-  dependencies {
-    classpath 'org.xtext:xtext-gradle-plugin:1.0.17'
-    classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
-  }
+	dependencies {
+		classpath 'org.xtext:xtext-gradle-plugin:1.0.17'
+		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+	}
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14'
+	gradleVersion = '2.14'
 }
 
-// CONFIGURE ALL SUBPROJECTS ///////////////////////////////////////////////////
 subprojects {
-  apply plugin: 'eclipse'
-  apply plugin: 'idea'
-  apply plugin: 'nebula.provided-base'
-  apply plugin: 'org.xtext.xtend'
-  apply plugin: 'maven-publish'
-  apply plugin: 'jacoco'
 
-  sourceCompatibility = javaVersion
-  targetCompatibility = javaVersion
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	apply plugin: 'nebula.provided-base'
+	apply plugin: 'org.xtext.xtend'
+	apply plugin: 'maven-publish'
+	apply plugin: 'jacoco'
 
-  eclipse.project.name = rootProject.name + '-' + project.name
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
 
-  tasks.eclipse.dependsOn(cleanEclipse)
+	eclipse.project.name = rootProject.name + '-' + project.name
 
-  repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-		 url "${artifactory_url}/main"
-		 credentials {
-		   username artifactory_user
-		   password artifactory_password
-		 }
-    }
-  }
+	tasks.eclipse.dependsOn(cleanEclipse)
 
-  dependencies {
-    compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendVersion}"
-    testCompile "junit:junit:${junitVersion}"
-  }
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		maven {
+			url "${artifactory_url}/main"
+			credentials {
+				 username artifactory_user
+				 password artifactory_password
+			}
+		}
+	}
+
+	dependencies {
+		compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendVersion}"
+		testCompile "junit:junit:${junitVersion}"
+	}
+	
 	xtend {
 		preferences = [ 'useJavaCompilerCompliance':true ]
 	}
 
-  task sourcesJar( type: Jar, dependsOn: classes ) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-  }
+	task sourcesJar( type: Jar, dependsOn: classes ) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
 
-  task javadocJar( type: Jar, dependsOn: javadoc ) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-  }
+	task javadocJar( type: Jar, dependsOn: javadoc ) {
+		classifier = 'javadoc'
+		from javadoc.destinationDir
+	}
 
-  tasks.withType( Javadoc ) {
-    if ( JavaVersion.current().isJava8Compatible() ) {
-	 options.addStringOption( 'Xdoclint:none', '-quiet' )
-    }
-  }
+	tasks.withType( Javadoc ) {
+		if ( JavaVersion.current().isJava8Compatible() ) {
+			options.addStringOption( 'Xdoclint:none', '-quiet' )
+		}
+	}
 
-  task install( dependsOn: publishToMavenLocal )
+	task install( dependsOn: publishToMavenLocal )
 
-  jar {
-    baseName rootProject.name + '-' + project.name
-  }
+	jar {
+		baseName rootProject.name + '-' + project.name
+	}
 
-  jacoco {
-    toolVersion = '0.7.6.201602180812'
-  }
+	jacoco {
+		toolVersion = '0.7.6.201602180812'
+	}
 
-  jacocoTestReport {
-    group = "Reporting"
-    description = "Generate Jacoco coverage reports after running tests."
-    reports.html.enabled true
-  }
+	jacocoTestReport {
+		group = "Reporting"
+		description = "Generate Jacoco coverage reports after running tests."
+		reports.html.enabled true
+	}
 
-}
-
-project('annotations') {
-  dependencies {
-    // compile 'com.kimengi.util:xtend-tools-core:latest.release'
-	compile 'com.onyxdevtools:onyx-database:1.2.2'
-  }
 }
 
 project('core') {
-  dependencies {
-    compile project(':annotations')
-
-    // testCompile 'com.kimengi.util:xtend-tools-test:latest.release'
-  }
+	dependencies {
+		provided "com.onyxdevtools:onyx-database:$onyxVersion"
+	}
 }
 
 project('test') {
-  dependencies {
-    compile project(':core')
-  }
+	dependencies {
+		compile project(':core')
+		provided "com.onyxdevtools:onyx-database:$onyxVersion"
+	}
 }

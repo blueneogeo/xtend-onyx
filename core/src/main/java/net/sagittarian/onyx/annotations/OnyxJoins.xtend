@@ -1,6 +1,8 @@
-package nl.kii.onyx.annotations
+package net.sagittarian.onyx.annotations
 
+import com.onyx.persistence.annotations.Relationship
 import java.util.List
+import net.sagittarian.onyx.metadata.Join
 import org.eclipse.xtend.lib.macro.AbstractClassProcessor
 import org.eclipse.xtend.lib.macro.Active
 import org.eclipse.xtend.lib.macro.TransformationContext
@@ -32,7 +34,7 @@ class OnyxJoinsProcessor extends AbstractClassProcessor {
 		val metaCls = cls.declaredClasses.findFirst [ simpleName == FIELD_CLASS_NAME ]
 		if(metaCls === null) { cls.addError('Could not find meta data class') return; }
 		
-		val relationshipAnnotation = com.onyx.persistence.annotations.Relationship.newTypeReference
+		val relationshipAnnotation = Relationship.newTypeReference
 		// val currentCls = findTypeGlobally(metaCls.qualifiedName).newTypeReference
 
 		val relationships = cls.declaredFields.filter [ findAnnotation(relationshipAnnotation.type) !== null ]
@@ -73,7 +75,7 @@ class OnyxJoinsProcessor extends AbstractClassProcessor {
 		val underscorePath = path.map [ value ].join('_')
 		val dotPath = path.map [ value ].join('.')
 
-		val relationshipFieldType = Relationship.newTypeReference
+		val relationshipFieldType = net.sagittarian.onyx.metadata.Relationship.newTypeReference
 		val joinFieldType = Join.newTypeReference
 		val methods = currentTypeMeta
 			.declaredResolvedMethods

@@ -1,4 +1,4 @@
-package nl.kii.onyx
+package net.sagittarian.onyx
 
 import com.onyx.exception.EntityException
 import com.onyx.persistence.IManagedEntity
@@ -9,9 +9,9 @@ import com.onyx.persistence.query.QueryOrder
 import com.onyx.persistence.update.AttributeUpdate
 import java.util.Date
 import java.util.List
-import nl.kii.onyx.annotations.Field
-import nl.kii.onyx.annotations.MetaData
-import nl.kii.onyx.annotations.Selector
+import net.sagittarian.onyx.metadata.Field
+import net.sagittarian.onyx.metadata.MetaData
+import net.sagittarian.onyx.metadata.Selector
 
 import static com.onyx.persistence.query.QueryCriteriaOperator.*
 
