@@ -11,6 +11,27 @@ It has the following features:
 - and since it is static, if your model changes, your queries break and can be corrected
 - support for joins
 
+# Table of Contents
+
+  * [Example:](#example)
+  * [Getting Started](#getting-started)
+  * [Setting up entities](#setting-up-entities)
+    * [@OnyxFields](#onyxfields)
+    * [@OnyxJoins](#onyxjoins)
+  * [Querying entities](#querying-entities)
+    * [Creating the builder](#creating-the-builder)
+    * [Using where](#using-where)
+    * [Using order](#using-order)
+  * [Getting results](#getting-results)
+    * [As a List](#as-a-list)
+    * [As a lazy List](#as-a-lazy-list)
+    * [A list of selected fields](#a-list-of-selected-fields)
+    * [The first result](#the-first-result)
+    * [Limiting results](#limiting-results)
+  * [Updating entities](#updating-entities)
+    * [Setting new values](#setting-new-values)
+  * [Deleting entities](#deleting-entities)
+
 # Example:
 
 ```xtend
