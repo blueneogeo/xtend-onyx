@@ -130,6 +130,36 @@ db
 	.where [ occuptants_firstName == 'Jason' ]
 ```
 
+You can check if an attribute is one of a list of attributes using selector.in() :
+
+```xtend
+	// directly specify
+	query.where [ name.in('Josh', 'Mary', 'John') ]
+	
+	// or as a list:
+	val wantedPeople = #['Josh', 'Mary', 'John']
+	query.where [ name.in(wantedPeople) ]
+	
+	// everyone but those people:
+	query.where [ name.notIn(wantedPeople) ]
+```
+
+Using selector.in() can work particulary well with enum types.
+
+There are also these additional string field operations:
+
+```xtend
+	// positive expressions
+	selector.startsWith(text) // field value must start with the text
+	selector.contains(text) // field value must contain this text
+	selector.matches(regexp) // field value matches the regular expression
+
+	// negative versions of the above
+	selector.notStartsWith(text)text
+	selector.notContains(text)
+	selector.notMatches(regexp)	
+```
+
 ## Using order
 
 Lets you change the order of the returned entities.

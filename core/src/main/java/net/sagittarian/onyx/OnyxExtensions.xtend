@@ -81,10 +81,6 @@ class OnyxExtensions {
 		new QueryCriteria(selector.name, EQUAL, value)
 	}
 
-	def static <F extends ManagedEntity> ==(Selector<List<F>> selector, List<F> value) {
-		new QueryCriteria(selector.name, EQUAL, newLinkedList(value)) // hack around generic issue
-	}
-
 	def static <E extends Enum<?>> ==(Selector<E> selector, E value) {
 		new QueryCriteria(selector.name, EQUAL, value)
 	}
@@ -135,10 +131,6 @@ class OnyxExtensions {
 		new QueryCriteria(selector.name, NOT_EQUAL, value)
 	}
 
-	def static <F extends ManagedEntity> !=(Selector<List<F>> selector, List<F> value) {
-		new QueryCriteria(selector.name, NOT_EQUAL, newLinkedList(value))
-	}
-
 	def static <E extends Enum<?>> !=(Selector<E> selector, E value) {
 		new QueryCriteria(selector.name, NOT_EQUAL, value)
 	}
@@ -181,18 +173,6 @@ class OnyxExtensions {
 		new QueryCriteria(selector.name, GREATER_THAN, value)
 	}
 
-	def static <F extends ManagedEntity> >(Selector<F> selector, F value) {
-		new QueryCriteria(selector.name, GREATER_THAN, value)
-	}
-
-	def static <F extends ManagedEntity> >(Selector<List<F>> selector, List<F> value) {
-		new QueryCriteria(selector.name, GREATER_THAN, newLinkedList(value))
-	}
-
-	def static <E extends Enum<?>> >(Selector<E> selector, E value) {
-		new QueryCriteria(selector.name, GREATER_THAN, value)
-	}
-
 	// larger or equals //
 
 	def static >=(Selector<String> selector, String value) {
@@ -228,18 +208,6 @@ class OnyxExtensions {
 	}
 
 	def static >=(Selector<Short> selector, short value) {
-		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
-	}
-
-	def static <F extends ManagedEntity> >=(Selector<F> selector, F value) {
-		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
-	}
-
-	def static <F extends ManagedEntity> >=(Selector<List<F>> selector, List<F> value) {
-		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, newLinkedList(value))
-	}
-
-	def static <E extends Enum<?>> >=(Selector<E> selector, E value) {
 		new QueryCriteria(selector.name, GREATER_THAN_EQUAL, value)
 	}
 
@@ -281,18 +249,6 @@ class OnyxExtensions {
 		new QueryCriteria(selector.name, LESS_THAN, value)
 	}
 
-	def static <F extends ManagedEntity> <(Selector<F> selector, F value) {
-		new QueryCriteria(selector.name, LESS_THAN, value)
-	}
-
-	def static <F extends ManagedEntity> <(Selector<List<F>> selector, List<F> value) {
-		new QueryCriteria(selector.name, LESS_THAN, newLinkedList(value))
-	}
-
-	def static <E extends Enum<?>> <(Selector<E> selector, E value) {
-		new QueryCriteria(selector.name, LESS_THAN, value)
-	}
-
 	// smaller or equals //
 
 	def static <=(Selector<String> selector, String value) {
@@ -331,16 +287,16 @@ class OnyxExtensions {
 		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
 	}
 
-	def static <F extends ManagedEntity> <=(Selector<F> selector, F value) {
-		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	// in //
+
+	/** The value is one of the passed values */
+	def static <T extends Object> in(Selector<T> selector, T... values) {
+		new QueryCriteria(selector.name, IN, newLinkedList(values))
 	}
 
-	def static <=(Selector<List<?>> selector, List<?> value) {
-		new QueryCriteria(selector.name, LESS_THAN_EQUAL, newLinkedList(value))
-	}
-
-	def static <E extends Enum<?>> <=(Selector<E> selector, E value) {
-		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
+	/** The value is NOT one of the passed values */
+	def static <T extends Object> notIn(Selector<T> selector, T... values) {
+		new QueryCriteria(selector.name, NOT_IN, newLinkedList(values))
 	}
 
 	// string operations //
@@ -363,16 +319,6 @@ class OnyxExtensions {
 
 	def static notStartsWith(Selector<String> selector, String value) {
 		new QueryCriteria(selector.name, NOT_STARTS_WITH, value)
-	}
-	
-	// in list //
-	
-	def static in(Selector<List<?>> selector, List<Object> value) {
-		new QueryCriteria(selector.name, IN, value)
-	}
-
-	def static notIn(Selector<List<?>> selector, List<Object> value) {
-		new QueryCriteria(selector.name, NOT_IN, value)
 	}
 	
 	// QUERY UPDATES //////////////////////////////////////////////////////////
