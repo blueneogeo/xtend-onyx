@@ -343,53 +343,7 @@ class OnyxExtensions {
 		new QueryCriteria(selector.name, LESS_THAN_EQUAL, value)
 	}
 
-//	// contains //
-//
-//	def static contains(Selector<List<String>> selector, String value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Long>> selector, long value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Integer>> selector, int value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Double>> selector, double value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Boolean>> selector, boolean value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Date>> selector, Date value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Float>> selector, float value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Byte>> selector, byte value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static contains(Selector<List<Short>> selector, short value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static <F extends ManagedEntity> contains(Selector<List<F>> selector, F value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-//
-//	def static <E extends Enum<?>> contains(Selector<List<E>> selector, E value) {
-//		new QueryCriteria(selector.name, CONTAINS, value)
-//	}
-	
-	// other string operations //
+	// string operations //
 
 	def static contains(Selector<String> selector, String value) {
 		new QueryCriteria(selector.name, CONTAINS, value)
@@ -409,6 +363,16 @@ class OnyxExtensions {
 
 	def static notStartsWith(Selector<String> selector, String value) {
 		new QueryCriteria(selector.name, NOT_STARTS_WITH, value)
+	}
+	
+	// in list //
+	
+	def static in(Selector<List<?>> selector, List<Object> value) {
+		new QueryCriteria(selector.name, IN, value)
+	}
+
+	def static notIn(Selector<List<?>> selector, List<Object> value) {
+		new QueryCriteria(selector.name, NOT_IN, value)
 	}
 	
 	// QUERY UPDATES //////////////////////////////////////////////////////////

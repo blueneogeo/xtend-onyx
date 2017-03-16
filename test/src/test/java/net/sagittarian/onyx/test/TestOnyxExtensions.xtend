@@ -71,30 +71,29 @@ class TestOnyxExtensions {
 		
 		val results = db.query(Address.Data)
 			.order [ +houseNr ]
-			.list ( [ street ], [ houseNr ] )
+			.list ( [ street ], [ occupants_firstName ] )
 		
 		for(result : results) {
 			println(result)
 		}		
-//
-//		db.query(Person.Data)
-//			.where [ id > 5 ]
-//			.delete
-//		
-//		db.query(Person.Data)
-//			.set [ firstName => 'Jacob' ]
-//			.where [ firstName == 'Christian2' ]
-//			.update
-//		
-//		val results = db.query(Person.Data)
-//			.select([id], [firstName])
-//			// .where [ id > 3 && address_houseNr > 20 ]
-//			.order([-id], [-address_houseNr])
-//			.lazyList
-//		
-//		for(result : results) {
-//			println(result)
-//		}
+
+		db.query(Person.Data)
+			.where [ id > 5 ]
+			.delete
+		
+		db.query(Person.Data)
+			.set [ firstName => 'Jacob' ]
+			.where [ firstName == 'Christian2' ]
+			.update
+		
+		val results2 = db.query(Person.Data)
+			.where [ id > 3 && address_houseNr > 20 ]
+			.order([-id], [-address_houseNr])
+			.lazyList
+		
+		for(result : results2) {
+			println(result)
+		}
 	}
 
 	@Test
@@ -107,17 +106,15 @@ class TestOnyxExtensions {
 			firstName = 'Jason'
 			lastName = 'Bourne'
 		])
-		val address = db.save( new Address => [
+		db.save( new Address => [
 			street = 'Bourbon street'
 			houseNr = 1
 			occupants = #[ person1, person2 ]
 		])
-		println(address)
 		
-//		val results = db.query(Address.Data)
-//			.where [ occupants_firstName == 'Sally' ]
-//			.list
-//		println(results)
+		val results = db.query(Address.Data)
+			.list
+		println(results.map[occupants]) // no results?
 		
 	}
 	

@@ -12,7 +12,6 @@ import java.util.Map
 import net.sagittarian.onyx.annotations.Fluent
 import net.sagittarian.onyx.metadata.MetaData
 import net.sagittarian.onyx.metadata.Selector
-import net.sagittarian.onyx.metadata.Field
 
 /**
  * Lets you build Onyx queries with static code, using the Data metadata
@@ -230,7 +229,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * db.query(User.Data)
 	 *    .list [username]
 	 */
-	def <E> List<E> list((M)=>Field<E> fieldFn) {
+	def <E> List<E> list((M)=>Selector<E> fieldFn) {
 		val field = fieldFn.apply(metadata)
 		val fieldName = field.name
 		fields = #[field]
@@ -249,7 +248,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * db.query(User.Data)
 	 *    .list([id], [username])
 	 */
-	def List<Map<String, ?>> list((M)=>Field<?>... fieldFns) {
+	def List<Map<String, ?>> list((M)=>Selector<?>... fieldFns) {
 		fields = fieldFns.map [ apply(metadata) ]
 		session.executeQuery(build)
 	}
