@@ -252,7 +252,65 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 		fields = fieldFns.map [ apply(metadata) ]
 		session.executeQuery(build)
 	}
-	
+
+	/**
+	 * Get all results as a lazily hydrated list of values.
+	 * <p>
+	 * Get only the passed field of the found entities.
+	 * Pass each field inside a closure to get code completion
+	 * of the possible fields.
+	 * <p>
+	 * <pre>Example: 
+	 * db.query(User.Data)
+	 *    .list [username]
+	 */
+	def <E> List<E> lazyList((M)=>Selector<E> fieldFn) {
+		val field = fieldFn.apply(metadata)
+		val fieldName = field.name
+		fields = #[field]
+		val List<Map<String, E>> list = session.executeLazyQuery(build)
+		val result = list.map [ get(fieldName) as E ]
+		new AbstractList<E> {
+			
+			override get(int index) {
+				result.get(index) as E
+			}
+			
+			override size() {
+				result.size
+			}
+			
+		}
+	}
+
+	/**
+	 * Get all results as a list lazily hydrated of fieldname->value mappings.
+	 * <p>
+	 * Get only the passed fields of the found entities.
+	 * Pass each field inside a closure to get code completion
+	 * of the possible fields.
+	 * <p>
+	 * <pre>Example: 
+	 * db.query(User.Data)
+	 *    .list([id], [username])
+	 */
+	def List<Map<String, ?>> lazyList((M)=>Selector<?>... fieldFns) {
+		fields = fieldFns.map [ apply(metadata) ]
+		val result = session.executeLazyQuery(build)
+		new AbstractList<Map<String, ?>> {
+			
+			override get(int index) {
+				result.get(index) as Map<String, ?>
+			}
+			
+			override size() {
+				result.size
+			}
+			
+		}
+		
+	}
+		
 	/** 
 	 * Gets the first matching result, or null if there is no result. 
 	 */

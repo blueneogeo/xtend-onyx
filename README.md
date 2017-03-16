@@ -306,6 +306,14 @@ val List<Map<String, ?> results = db
 	.list( [ firstName ], [ lastName ])
 ```
 
+These selections also work with lazyList:
+
+```xtend
+val List<Map<String, ?> results = db
+	.query (User.Data)
+	.lazyList( [ firstName ], [ lastName ])
+```
+
 ## The first result
 
 To simply get the first result only, perform .first:
