@@ -13,28 +13,30 @@ It has the following features:
 
 # Example:
 
-	import static extension nl.kii.onyx.OnyxExtensions.*
-	
-	val db = factory.persistenceManager
-	
-	val person = new Person => [
-		firstName = 'Foo'
-		lastName = 'Bar'
-		address = new Address => [
-			street = 'FooStreet'
-			houseNr = 99
-		]
+```xtend
+import static extension nl.kii.onyx.OnyxExtensions.*
+
+val db = factory.persistenceManager
+
+val person = new Person => [
+	firstName = 'Foo'
+	lastName = 'Bar'
+	address = new Address => [
+		street = 'FooStreet'
+		houseNr = 99
 	]
-	
-	db.saveEntity(person)
-	
-	val results = db
-		.query(Person.Data)
-		.where [ firstName != null && address_houseNr == 99 ]
-		.order [ -id ]
-		.list
-	
-	println(results)
+]
+
+db.saveEntity(person)
+
+val results = db
+	.query(Person.Data)
+	.where [ firstName != null && address_houseNr == 99 ]
+	.order [ -id ]
+	.list
+
+println(results)
+```
 
 # Getting Started
 
@@ -48,8 +50,10 @@ This project uses Gradle. In the project root, type:
 
 Annotate every **ManagedEntity** with:
 
-	@OnyxFields
-	@OnyxJoins
+```xtend
+@OnyxFields
+@OnyxJoins
+```
 
 ## @OnyxFields
 
@@ -67,7 +71,9 @@ These methods can be used in a **TypedQueryBuilder**. This builder builds an Ony
 
 For example:
 
-	val builder = db.query(Person.Data)
+```xtend
+val builder = db.query(Person.Data)
+```
 
 This builder can be given query commands to filter entities, such as:
 
@@ -89,7 +95,9 @@ Below is an explanation of how to use each of the operations the builder provide
 
 Lets you filter the stored entities with query criteria.
 
-	.where( (Metadata<T>)=>QueryCriteria )
+```xtend
+query.where( (Metadata<T>)=>QueryCriteria )
+```
 
 The metadata instance provides you with the field and join selectors, and the extension provides you with handy overloads that let you create criteria with these selectors. For example:
 
@@ -99,29 +107,36 @@ This translates to new QueryCritera(selector.name, EQUALS_TO, value). Similar ov
 
 Example:
 
-	db
-		.query(Address.Data)
-		.where [ street == 'Busystreet' && houseNr >= 20 ]
-
+```xtend
+db
+	.query(Address.Data)
+	.where [ street == 'Busystreet' && houseNr >= 20 ]
+```
 
 If you use where multiple times on a query, it will perform a logical AND between all of your criteria. This has the same result as the query above:
 
-	db
-		.query(Address.Data)
-		.where [ street == 'Busystreet' ]
-		.where [ houseNr >= 20 ]
+```xtend
+db
+	.query(Address.Data)
+	.where [ street == 'Busystreet' ]
+	.where [ houseNr >= 20 ]
+```
 
 The @OnyxJoin annotation also lets you use join selectors in queries. For example, given an Address class with a relationship *occupants* of type Person, and each Person entity having a firstName, you can do this:
 
-	db
-		.query(Address.Data)
-		.where [ occuptants_firstName == 'Jason' ]
+```xtend
+db
+	.query(Address.Data)
+	.where [ occuptants_firstName == 'Jason' ]
+```
 
 ## Using order
 
 Lets you change the order of the returned entities.
 
-	.order( (Metadata<T>)=>QueryOrder … )
+```xtend
+.order( (Metadata<T>)=>QueryOrder … )
+```
 
 The metadata instance provides you with the field and join selectors, and the extension provides you with handy overloads that let you create QueryOrder instances for these selectors. For example:
 
@@ -132,25 +147,31 @@ You can call order multiple times, or pass multiple closures.
 
 Examples:
 
-	db
-		.query(Address.Data)
-		.where [ street == 'Busystreet' && houseNr >= 20 ]
-		.order [ +street ]
+```xtend
+db
+	.query(Address.Data)
+	.where [ street == 'Busystreet' && houseNr >= 20 ]
+	.order [ +street ]
+```
 
 To sort first by street ascending, and then houseNr descending:
 
-	db
-		.query(Address.Data)
-		.where [ street == 'Busystreet' && houseNr >= 20 ]
-		.order [ +street ]
-		.order [ -houseNr ]
+```xtend
+db
+	.query(Address.Data)
+	.where [ street == 'Busystreet' && houseNr >= 20 ]
+	.order [ +street ]
+	.order [ -houseNr ]
+```
 
 This has the same result:
 
-	db
-		.query(Address.Data)
-		.where [ street == 'Busystreet' && houseNr >= 20 ]
-		.order ( [ +street ], [ -houseNr ] )
+```xtend
+db
+	.query(Address.Data)
+	.where [ street == 'Busystreet' && houseNr >= 20 ]
+	.order ( [ +street ], [ -houseNr ] )
+```
 
 # Getting results
 
@@ -162,12 +183,14 @@ Get the results of the query as a **List**.
 
 Example:
 
-	val results = db
-		.query(Address.Data)
-		.where [ street == 'Busystreet' && houseNr >= 20 ]
-		.order [ +street ]
-		.list
-	println(results) // prints addresses
+```xtend
+val results = db
+	.query(Address.Data)
+	.where [ street == 'Busystreet' && houseNr >= 20 ]
+	.order [ +street ]
+	.list
+println(results) // prints addresses
+```
 
 ## As a lazy List
 
@@ -175,37 +198,47 @@ This performs the same basic function as List, but only gets the matching result
 
 Unlike the Onyx resulted list, this list can be iterated over normally:
 
-	val results = db
-		.query(Address.Data)
-		.lazyList
-	
-	for(result : results) {
-		println(result) // gets and hydrates the result entity
-	}
+```xtend
+val results = db
+	.query(Address.Data)
+	.lazyList
+
+for(result : results) {
+	println(result) // gets and hydrates the result entity
+}
+```
 
 ## A list of selected fields
 
 To tune performance, you can tell Onyx to only fetch the fields you are interested in for each fetched entity.
 
-	.list( (MetaData)=>Field<?>… fieldFns )
+```xtend
+query.list( (MetaData)=>Field<?>… fieldFns )
+```
 
 For example, to only fetch the firstName for each entity:
 
-	val List<String> results = db
-		.query(User.Data)
-		.list [ firstName ]
+```xtend
+val List<String> results = db
+	.query(User.Data)
+	.list [ firstName ]
+```
 
 You can also select multiple fields, in which case you will get a list of map<field, value>.
 
-	val List<Map<String, ?> results = db
-		.query(User.Data)
-		.list( [ firstName ], [ lastName ])
+```xtend
+val List<Map<String, ?> results = db
+	.query(User.Data)
+	.list( [ firstName ], [ lastName ])
+```
 
 ## The first result
 
 To simply get the first result only, perform .first:
 
-	println(db.query(Address.Data).first)
+```xtend
+println(db.query(Address.Data).first)
+```
 
 ## Limiting results
 
@@ -224,29 +257,37 @@ You update entities by calling .set [ ] to tell the builder what values to set, 
 
 Update an entity attribute. Use the => operator to assign a value inside the closure.
 
-	db.query(User.Data)
-		.set [ username => 'bobby' ]
-		.update // changes all usernames to bobby
+```xtend
+db.query(User.Data)
+	.set [ username => 'bobby' ]
+	.update // changes all usernames to bobby
+```
 
 You can also perform multiple set commands:
 
-	db.query(User.Data)
-		.set [ username => 'bobby' ]
-		.set [ hobby => 'knitting' ]
-		.update
+```xtend
+db.query(User.Data)
+	.set [ username => 'bobby' ]
+	.set [ hobby => 'knitting' ]
+	.update
+```
 
 Or combine them in a single set:
 
-	db.query(User.Data)
-		.set ( [ username => 'bobby' ], [ hobby => 'knitting' ] )
-		.update
+```xtend
+db.query(User.Data)
+	.set ( [ username => 'bobby' ], [ hobby => 'knitting' ] )
+	.update
+```
 
 Combine setting with .where [ ] to only change some entities:
 
-	db.query(User.Data)
-		.set [ username => 'bobby' ]
-		.where [ username == 'robby' ]
-		.update // changes robby user to bobby
+```xtend
+db.query(User.Data)
+	.set [ username => 'bobby' ]
+	.where [ username == 'robby' ]
+	.update // changes robby user to bobby
+```
 
 The update call returns the amount of entities that were updated.
 
@@ -254,11 +295,13 @@ The update call returns the amount of entities that were updated.
 
 End a query with .delete to remove all entities that match the query.
 
-	db.query(User.Data)
-		.delete // deletes all users
+```xtend
+db.query(User.Data)
+	.delete // deletes all users
 
-	db.query(User.Data)
-		.where [ username == 'robby' ]
-		.delete // deletes robby
+db.query(User.Data)
+	.where [ username == 'robby' ]
+	.delete // deletes robby
+```
 
 The delete call returns the amount of entities that were removed.
