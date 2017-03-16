@@ -82,6 +82,23 @@ subprojects {
 		description = "Generate Jacoco coverage reports after running tests."
 		reports.html.enabled true
 	}
+	
+	publishing {
+		publications {
+			mavenJava( MavenPublication ) {
+				artifactId rootProject.name + '-' + project.name
+				from components.java
+				artifact sourcesJar
+				artifact javadocJar
+				pom.withXml {
+					asNode().dependencies.'*'.each() {
+						it.scope*.value = 'compile'
+					}
+				}
+			}
+		}
+	}
+
 
 }
 
