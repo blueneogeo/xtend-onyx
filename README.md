@@ -18,7 +18,7 @@ It has the following features:
   * [Example](#example)
   * [Getting Started](#getting-started)
     * [Gradle commands](#gradle-commands)
-    * [Using in your own project](#using-in-your-own-project)
+    * [In your own project](#in-your-own-project)
   * [Setting up entities](#setting-up-entities)
     * [@OnyxFields](#onyxfields)
     * [@OnyxJoins](#onyxjoins)
@@ -74,7 +74,7 @@ This project uses Gradle. In the project root, type:
 - *gradle idea* - To generate the IntelliJ IDEA projects to import.
 - *gradle install* - To install the library on your local maven repository.
 
-## Using in your own project
+## In your own project
 
 Xtend-onyx has only dependencies on the standard xtend java library and the onyx database.
 
