@@ -30,7 +30,7 @@ val person = new Person => [
 db.saveEntity(person)
 
 val results = db
-	.query(Person.Data)
+	.query (Person.Data)
 	.where [ firstName != null && address_houseNr == 99 ]
 	.order [ -id ]
 	.list
@@ -109,7 +109,7 @@ Example:
 
 ```xtend
 db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ street == 'Busystreet' && houseNr >= 20 ]
 ```
 
@@ -117,7 +117,7 @@ If you use where multiple times on a query, it will perform a logical AND betwee
 
 ```xtend
 db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ street == 'Busystreet' ]
 	.where [ houseNr >= 20 ]
 ```
@@ -126,7 +126,7 @@ The @OnyxJoin annotation also lets you use join selectors in queries. For exampl
 
 ```xtend
 db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ occuptants_firstName == 'Jason' ]
 ```
 
@@ -179,7 +179,7 @@ Examples:
 
 ```xtend
 db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ street == 'Busystreet' && houseNr >= 20 ]
 	.order [ +street ]
 ```
@@ -188,7 +188,7 @@ To sort first by street ascending, and then houseNr descending:
 
 ```xtend
 db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ street == 'Busystreet' && houseNr >= 20 ]
 	.order [ +street ]
 	.order [ -houseNr ]
@@ -198,7 +198,7 @@ This has the same result:
 
 ```xtend
 db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ street == 'Busystreet' && houseNr >= 20 ]
 	.order ( [ +street ], [ -houseNr ] )
 ```
@@ -215,7 +215,7 @@ Example:
 
 ```xtend
 val results = db
-	.query(Address.Data)
+	.query (Address.Data)
 	.where [ street == 'Busystreet' && houseNr >= 20 ]
 	.order [ +street ]
 	.list
@@ -230,7 +230,7 @@ Unlike the Onyx resulted list, this list can be iterated over normally:
 
 ```xtend
 val results = db
-	.query(Address.Data)
+	.query (Address.Data)
 	.lazyList
 
 for(result : results) {
@@ -250,7 +250,7 @@ For example, to only fetch the firstName for each entity:
 
 ```xtend
 val List<String> results = db
-	.query(User.Data)
+	.query (User.Data)
 	.list [ firstName ]
 ```
 
@@ -258,7 +258,7 @@ You can also select multiple fields, in which case you will get a list of map<fi
 
 ```xtend
 val List<Map<String, ?> results = db
-	.query(User.Data)
+	.query (User.Data)
 	.list( [ firstName ], [ lastName ])
 ```
 
@@ -288,7 +288,8 @@ You update entities by calling .set [ ] to tell the builder what values to set, 
 Update an entity attribute. Use the => operator to assign a value inside the closure.
 
 ```xtend
-db.query(User.Data)
+db
+	.query (User.Data)
 	.set [ username => 'bobby' ]
 	.update // changes all usernames to bobby
 ```
@@ -296,7 +297,8 @@ db.query(User.Data)
 You can also perform multiple set commands:
 
 ```xtend
-db.query(User.Data)
+db
+	.query (User.Data)
 	.set [ username => 'bobby' ]
 	.set [ hobby => 'knitting' ]
 	.update
@@ -305,7 +307,8 @@ db.query(User.Data)
 Or combine them in a single set:
 
 ```xtend
-db.query(User.Data)
+db
+	.query (User.Data)
 	.set ( [ username => 'bobby' ], [ hobby => 'knitting' ] )
 	.update
 ```
@@ -313,7 +316,8 @@ db.query(User.Data)
 Combine setting with .where [ ] to only change some entities:
 
 ```xtend
-db.query(User.Data)
+db
+	.query (User.Data)
 	.set [ username => 'bobby' ]
 	.where [ username == 'robby' ]
 	.update // changes robby user to bobby
@@ -326,10 +330,12 @@ The update call returns the amount of entities that were updated.
 End a query with .delete to remove all entities that match the query.
 
 ```xtend
-db.query(User.Data)
+db
+	.query (User.Data)
 	.delete // deletes all users
 
-db.query(User.Data)
+db
+	.query (User.Data)
 	.where [ username == 'robby' ]
 	.delete // deletes robby
 ```
