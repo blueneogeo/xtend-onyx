@@ -13,8 +13,12 @@ It has the following features:
 
 # Table of Contents
 
+  * [xtend\-onyx](#xtend-onyx)
+  * [Table of Contents](#table-of-contents)
   * [Example](#example)
   * [Getting Started](#getting-started)
+    * [Gradle commands](#gradle-commands)
+    * [Using in your own project](#using-in-your-own-project)
   * [Setting up entities](#setting-up-entities)
     * [@OnyxFields](#onyxfields)
     * [@OnyxJoins](#onyxjoins)
@@ -61,11 +65,28 @@ println(results)
 
 # Getting Started
 
+## Gradle commands
+
 This project uses Gradle. In the project root, type:
 
 - *gradle build* - To build the project and run a test.
 - *gradle eclipse* - To generate the Eclipse projects to import.
 - *gradle idea* - To generate the IntelliJ IDEA projects to import.
+- *gradle install* - To install the library on your local maven repository.
+
+## Using in your own project
+
+Xtend-onyx has only dependencies on the standard xtend java library and the onyx database.
+
+It is not yet available on Maven Central, so to use it you have to install it to your local repository.
+
+To import it after you have gradle installed it locally (see above), add this dependency to your own project:
+
+	compile "net.sagittarian.xtend-onyx-core:1.0"
+
+and add the Onyx database dependency as well, eg:
+
+	compile "com.onyxdevtools:onyx-database:$onyxVersion"
 
 # Setting up entities
 
