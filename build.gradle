@@ -6,7 +6,7 @@ buildscript {
 
 	dependencies {
 		classpath 'org.xtext:xtext-gradle-plugin:1.0.17'
-		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
 	}
 }
 
@@ -42,11 +42,6 @@ subprojects {
 		}
 	}
 
-	dependencies {
-		compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendVersion}"
-		testCompile "junit:junit:${junitVersion}"
-	}
-	
 	xtend {
 		preferences = [ 'useJavaCompilerCompliance':true ]
 	}
@@ -90,11 +85,6 @@ subprojects {
 				from components.java
 				artifact sourcesJar
 				artifact javadocJar
-				pom.withXml {
-					asNode().dependencies.'*'.each() {
-						it.scope*.value = 'compile'
-					}
-				}
 			}
 		}
 	}
@@ -104,6 +94,7 @@ subprojects {
 
 project('core') {
 	dependencies {
+		compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendVersion}"
 		provided "com.onyxdevtools:onyx-database:$onyxVersion"
 	}
 }
@@ -112,5 +103,6 @@ project('test') {
 	dependencies {
 		compile project(':core')
 		provided "com.onyxdevtools:onyx-database:$onyxVersion"
+		testCompile "junit:junit:${junitVersion}"
 	}
 }
