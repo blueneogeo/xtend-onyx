@@ -1,19 +1,19 @@
 xtend-onyx
 ==========
 
-This thin library adds a small xtend DSL for querying Onyx.
+This thin library adds a small xtend DSL for querying the [Onyx Database](https://www.onyxdevtools.com/learn/tutorials/index).
 
 It has the following features:
 
-- simple syntax with boolean operators
+- simple query syntax with boolean operators
 - type-safe static compile time query checks
 - since it is static, in an IDE you get code completion for fields
 - and since it is static, if your model changes, your queries break and can be corrected
-- support for joins
+- support for joins across your entities
 
 # Table of Contents
 
-  * [Example:](#example)
+  * [Example](#example)
   * [Getting Started](#getting-started)
   * [Setting up entities](#setting-up-entities)
     * [@OnyxFields](#onyxfields)
@@ -32,7 +32,7 @@ It has the following features:
     * [Setting new values](#setting-new-values)
   * [Deleting entities](#deleting-entities)
 
-# Example:
+# Example
 
 ```xtend
 import static extension nl.kii.onyx.OnyxExtensions.*
@@ -69,12 +69,14 @@ This project uses Gradle. In the project root, type:
 
 # Setting up entities
 
-Annotate every **ManagedEntity** with:
+Annotate your every **ManagedEntity** class with:
 
 ```xtend
 @OnyxFields
 @OnyxJoins
 ```
+
+This will make the metadata from your entity statically available to the xtend-onyx library.
 
 ## @OnyxFields
 
@@ -82,7 +84,7 @@ This Active Annotation will add the **Data** subclass to your entity. This **Dat
 
 ## @OnyxJoins
 
-This Active Annotation must always be placed *after* @OnyxFields. It will navigate through the relationships of the entities and for each relationship field found, it will add a method to the **Data** class added by the @OnyxFields annotation.
+This Active Annotation must always be placed *after* @OnyxFields. It will navigate through the relationships between your entities and for each relationship field found, it will add a join method to the **Data** class.
 
 # Querying entities
 
