@@ -322,6 +322,15 @@ To simply get the first result only, perform .first:
 println(db.query(Address.Data).first)
 ```
 
+## Counting results
+
+Get a count of the amount of entities matching your query with .count:
+
+```xtend
+// how many addresses do we have?
+println(db.query(Address.Data).count) 
+```
+
 ## Limiting results
 
 There are some properties you can set on the builder to set how to page through results:

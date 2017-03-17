@@ -111,11 +111,11 @@ class TestOnyxExtensions {
 			houseNr = 1
 			occupants = #[ person1, person2 ]
 		])
-		
 		val results = db.query(Address.Data)
 			.list
-		println(results.map[occupants]) // no results?
-		
+		println(results.size) // returns 1
+		println(results.head.street) // returns 'Bourbon street'
+		println(results.head.occupants.toList) // no results?
 	}
 	
 }

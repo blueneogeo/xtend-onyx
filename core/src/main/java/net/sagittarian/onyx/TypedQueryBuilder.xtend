@@ -321,6 +321,13 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	}
 
 	/**
+	 * Gets the amount of results matching the query
+	 */	
+	def int count() {
+		session.executeLazyQuery(build).size
+	}
+
+	/**
 	 * Updates the entities that match the query with the updates
 	 * that you specified with the .set method.
 	 * @return the amount of updated entities
