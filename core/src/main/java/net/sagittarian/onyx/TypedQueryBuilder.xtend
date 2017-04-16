@@ -52,6 +52,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 
 	List<Selector<?>> fields
 	QueryCriteria criteria
+	QueryObserver<T> observer
 	List<AttributeUpdate<?>> updates
 	List<QueryOrder> orders
 	Integer firstRow
@@ -68,7 +69,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 		this.metaType = metaType
 		this.metadata = metaType.newInstance
 	}
-	
+
 	@Fluent
 	def TypedQueryBuilder<T, M> where((M)=>QueryCriteria... criteriaFns) {
 		val newCriteria = criteriaFns.map [ apply(metadata) ]
@@ -114,7 +115,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 *    .set([ username => 'my new name' ], [ age => 30 ])
 	 *    .where [ username == 'my old name' ]
 	 *    .update
-	 */	
+	 */
 	@Fluent
 	def TypedQueryBuilder<T, M> set((M)=>AttributeUpdate<?>... updateFns) {
 		if(updates === null) updates = newLinkedList
@@ -176,25 +177,29 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * This also allows you to reuse a query for performance.
 	 */	
 	def build() {
-		new Query(metadata.entityType) => [
-			if(fields !== null) it.selections = fields.map [ name ]
-			if(criteria !== null) it.criteria = criteria
-			if(updates !== null) it.updates = newLinkedList(updates) // hack around generic type warning
-			if(orders !== null) it.queryOrders = orders
-			if(maxResults !== null) it.maxResults = maxResults
-			if(firstRow !== null) it.firstRow = firstRow
-			if(partition !== null) it.partition = partition
-			if(range !== null) {
-				it.firstRow = it.firstRow + range.start - 1
-				it.maxResults = Math.min(range.size, it.maxResults) 
+		new Query(metadata.entityType) => [ query |
+			if(this.fields !== null) query.selections = this.fields.map [ name ]
+			if(this.criteria !== null) query.criteria = this.criteria
+			if(this.updates !== null) query.updates = newLinkedList(this.updates) // hack around generic type warning
+			if(this.orders !== null) query.queryOrders = this.orders
+			if(this.maxResults !== null) query.maxResults = this.maxResults
+			if(this.firstRow !== null) query.firstRow = this.firstRow
+			if(this.partition !== null) query.partition = this.partition
+			if(this.range !== null) {
+				query.firstRow = query.firstRow + this.range.start - 1
+				query.maxResults = Math.min(this.range.size, query.maxResults) 
 			}
-			if(pageNr !== null && maxResults !== null) {
-				it.firstRow = ((pageNr - 1) * it.maxResults) + it.firstRow
+			if(this.pageNr !== null && this.maxResults !== null) {
+				query.firstRow = ((this.pageNr - 1) * query.maxResults) + query.firstRow
+			}
+			if(this.observer !== null) {
+				this.observer.stopListeningFn = [ session.removeChangeListener(query) ]
+				query.changeListener = this.observer.listener
 			}
 		]
 	}
 
-	/** Gets all results as a prefilled List */	
+	/** Gets all results as a prefilled List */
 	def List<T> list() {
 		session.executeQuery(build)
 	}
@@ -238,15 +243,30 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	}
 
 	/**
-	 * Get all results as a list of fieldname->value mappings.
+	 * # Get all results as a list of fieldname->value mappings.
 	 * <p>
 	 * Get only the passed fields of the found entities.
 	 * Pass each field inside a closure to get code completion
 	 * of the possible fields.
 	 * <p>
-	 * <pre>Example: 
+	 * <pre>Example:
+	 * <pre>
+	 * ```xtend
 	 * db.query(User.Data)
 	 *    .list([id], [username])
+	 * ```
+	 * <p>
+	 * Result: a list of maps with the passed properties
+	 * <pre>
+	 * ```xtend
+	 * #[ 
+	 *    #{
+	 *       id -> 1
+	 *       username -> 'Jason'
+	 *    #},
+	 *    ...
+	 * ] 
+	 * ```
 	 */
 	def List<Map<String, ?>> list((M)=>Selector<?>... fieldFns) {
 		fields = fieldFns.map [ apply(metadata) ]
@@ -266,10 +286,8 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 */
 	def <E> List<E> lazyList((M)=>Selector<E> fieldFn) {
 		val field = fieldFn.apply(metadata)
-		val fieldName = field.name
 		fields = #[field]
-		val List<Map<String, E>> list = session.executeLazyQuery(build)
-		val result = list.map [ get(fieldName) as E ]
+		val result = session.executeLazyQuery(build)
 		new AbstractList<E> {
 			
 			override get(int index) {
@@ -308,7 +326,6 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 			}
 			
 		}
-		
 	}
 		
 	/** 
@@ -343,6 +360,20 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 */
 	def int delete() {
 		session.executeDelete(build)
+	}
+
+	/**
+	 * Observe changes on the query. Instead of a QueryListener, this uses a QueryObserver, for two reasons:
+	 * <li>Allows you to close the underlying listener by calling stopObserving from within the handlers
+	 * <li>Allows you to chain the listener and still be able to close the underlying listener.
+	 * <p>
+	 * Good practice: in the closure w 
+	 *  
+	 */
+	def observe((QueryObserver<T>)=>void observerHandler) {
+		this.observer = new QueryObserver<T>
+		observerHandler.apply(this.observer)
+		this
 	}
 
 }

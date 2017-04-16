@@ -7,6 +7,7 @@ buildscript {
 	dependencies {
 		classpath 'org.xtext:xtext-gradle-plugin:1.0.17'
 		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
+		classpath 'ch.raffael.pegdown-doclet:pegdown-doclet:1.2'
 	}
 }
 
@@ -22,6 +23,7 @@ subprojects {
 	apply plugin: 'org.xtext.xtend'
 	apply plugin: 'maven-publish'
 	apply plugin: 'jacoco'
+	apply plugin: 'ch.raffael.pegdown-doclet'
 
 	sourceCompatibility = javaVersion
 	targetCompatibility = javaVersion
@@ -33,11 +35,10 @@ subprojects {
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		maven {
-			url "${artifactory_url}/main"
+		maven { url "${artifactory_url}/main"
 			credentials {
-				 username artifactory_user
-				 password artifactory_password
+			username artifactory_user
+			password artifactory_password
 			}
 		}
 	}
@@ -89,12 +90,12 @@ subprojects {
 		}
 	}
 
-
 }
 
 project('core') {
 	dependencies {
-		compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendVersion}"
+		compile "org.eclipse.xtend:org.eclipse.xtend.lib:$xtendVersion"
+		compile "com.kimengi.async:xtend-async-event:1.4.4"
 		provided "com.onyxdevtools:onyx-database:$onyxVersion"
 	}
 }
@@ -103,6 +104,6 @@ project('test') {
 	dependencies {
 		compile project(':core')
 		provided "com.onyxdevtools:onyx-database:$onyxVersion"
-		testCompile "junit:junit:${junitVersion}"
+		testCompile "junit:junit:$junitVersion"
 	}
 }

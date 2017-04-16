@@ -1,1 +1,2 @@
 include 'core', 'test'
+include 'core-git-dependencies:xtend-async-event'

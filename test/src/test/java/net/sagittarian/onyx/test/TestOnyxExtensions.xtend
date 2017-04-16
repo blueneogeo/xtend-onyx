@@ -3,12 +3,13 @@ package net.sagittarian.onyx.test
 import com.onyx.persistence.factory.PersistenceManagerFactory
 import com.onyx.persistence.factory.impl.CacheManagerFactory
 import com.onyx.persistence.manager.PersistenceManager
-import com.onyx.persistence.query.QueryCriteria
-import com.onyx.persistence.query.QueryCriteriaOperator
-import com.onyx.persistence.query.QueryOrder
+import com.onyx.persistence.query.Query
+import com.onyx.query.QueryListener
+import net.sagittarian.onyx.QueryObserver
 import net.sagittarian.onyx.test.entities.Address
 import net.sagittarian.onyx.test.entities.Person
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -31,32 +32,102 @@ class TestOnyxExtensions {
 		factory.close
 	}
 
+	int listeningAddCount = 0
+	
 	@Test
-	def void testInsertAndGet() {
-		val person = new Person => [
-			firstName = 'Christian'
-			lastName = 'Vogel'
-		]
-		db.saveEntity(person)
-		val saved = db.findById(Person, person.id)
-		println(saved)
+	def void testListening() {
+
+		val query = new Query(Person)
+		
+		query.changeListener = new QueryListener<Person> {
+			
+			override onItemAdded(Person item) {
+				listeningAddCount++
+			}
+			
+			override onItemRemoved(Person item) {
+			}
+			
+			override onItemUpdated(Person item) {
+			}
+			
+		}
+		db.executeQuery(query)
+
+		for(i : 1..50) {
+			val person = new Person => [ firstName = 'Hello' lastName = 'World' ]
+			db.save(person)
+		}
+		
+		Assert.assertEquals(50, listeningAddCount)
+		
+		db.removeChangeListener(query)
 	}
 
+
+	var QueryObserver<Person> personObserver
+	int observingAddCount = 0
+
+	/**
+	 * Add an observer and keep observing add operations until we stop observing at the end.
+	 * Notice that we need to assign the personObserver from the builder.observe [ ]
+	 * closure so we have a reference to close with.
+	 */
 	@Test
-	def void testQuery() {
+	def void testObservingUntilEnd() {
+
+		db.query(Person.Data)
+			.observe [
+				onItemAdded [ observingAddCount++ ]
+				personObserver = it
+			]
+			.list
+
 		for(i : 1..50) {
-			val person = new Person => [ firstName = 'Christian'+i lastName = 'Vogel'+i ]
-			db.saveEntity(person)
+			val person = new Person => [ firstName = 'Hello' lastName = 'World' ]
+			db.save(person)
 		}
 
-		val c1 = new QueryCriteria('id', QueryCriteriaOperator.GREATER_THAN, 10L)
-		val c2 = new QueryCriteria('id', QueryCriteriaOperator.LESS_THAN, 15L)
-		val data = db.list(Person, c2.and(c1), new QueryOrder('id')) 
-		println(data)
+		Assert.assertEquals(50, observingAddCount)
+		personObserver.stopObserving
 	}
+
+	/**
+	 * Add an observer and keep observing add operations until we feel it is enough (at 20 adds).
+	 */
+	@Test
+	def void testObservingUntilCriterium() {
+
+		db.query(Person.Data)
+			.observe [ extension observer |
+				onItemAdded [ 
+					observingAddCount++
+					personObserver = observer
+					if(observingAddCount === 20) observer.stopObserving
+				]
+			]
+			.list
+
+		for(i : 1..50) {
+			val person = new Person => [ firstName = 'Hello' lastName = 'World' ]
+			db.save(person)
+		}
+
+		Assert.assertEquals(20, observingAddCount)
+		personObserver.stopObserving
+	}
+
 
 	@Test
 	def void testXtendQuery() {
+
+		db.query(Person.Data)
+			.observe [
+				onItemAdded [ println('added person ' + it) ]
+				personObserver = it
+			]
+			.list
+
 		for(i : 1..50) {
 			db.saveEntity( new Person => [ 
 				firstName = 'Christian'+i 
@@ -94,6 +165,8 @@ class TestOnyxExtensions {
 		for(result : results2) {
 			println(result)
 		}
+
+		personObserver.stopObserving
 	}
 
 	@Test
