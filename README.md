@@ -10,6 +10,7 @@ It has the following features:
 - since it is static, in an IDE you get code completion for fields
 - and since it is static, if your model changes, your queries break and can be corrected
 - support for joins across your entities
+- observe query changes
 
 # Table of Contents
 
@@ -35,6 +36,7 @@ It has the following features:
   * [Updating entities](#updating-entities)
     * [Setting new values](#setting-new-values)
   * [Deleting entities](#deleting-entities)
+  * [Observing queries](#observing-queries)
 
 # Example
 
@@ -402,3 +404,54 @@ db
 ```
 
 The delete call returns the amount of entities that were removed.
+
+# Observing queries
+
+You can observe changes as they occur on your database with the **.observe [ ]** method. 
+This method wraps the Onyx **QueryListener** interface. For example, to get all users
+and then observe any new additions:
+
+```xtend
+val users = db
+	.query(User.Data)
+	.observe [
+		onItemAdded [ user |
+			println('user was added: ' + user)
+		]
+	]
+	.list
+```
+
+The closure you pass to the observe method gets a single parameter: a **QueryObserver<T>**, which lets you
+subscribe to changes with the following methods:
+
+- onItemAdded [ T item | ]
+- onItemRemoved [ T item | ]
+- onItemUpdated [ T item |]
+
+It also contains the **stopObserving** method, which stops the query listening. It is important you call this method,
+as failing to do so can mean a memory leak. Because of this, you will probably want to assign the passed
+**QueryObserver<T>** to a field so you can call **stopObserving** later. For example:
+
+```xtend
+// class field:
+QueryObserver<T> userObserver
+
+// in some method:
+val users = db
+	.query(User.Data)
+	.observe [ extension observer | // explicitly pass the observer by name, so you can refer to it below
+		onItemAdded [ user |
+			println('user was added: ' + user)
+		]
+		onItemDeleted [ user |
+			println('user was deleted: ' + user)
+		]
+		// assign the observer to the field
+		userObserver = observer
+	]
+	.list
+
+// so later you call:
+userObserver.stopObserving
+```
