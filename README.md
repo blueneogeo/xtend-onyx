@@ -24,7 +24,7 @@ It has the following features:
     * [@OnyxFields](#onyxfields)
     * [@OnyxJoins](#onyxjoins)
   * [Querying entities](#querying-entities)
-    * [Creating the builder](#creating-the-builder)
+    * [Creating the TypedQuery](#creating-the-typedquery)
     * [Using where](#using-where)
     * [Using order](#using-order)
   * [Getting results](#getting-results)
@@ -111,17 +111,17 @@ This Active Annotation must always be placed *after* @OnyxFields. It will naviga
 
 # Querying entities
 
-## Creating the builder
+## Creating the TypedQuery
 
-These methods can be used in a **TypedQueryBuilder**. This builder builds an Onyx Query. This is used in combination with the OnyxExtensions static extensions. This extension class provides the **query(PersistenceManager, MetaData<T>)** method, that creates a **TypedQueryBuilder** instance to work with.
+These methods can be used in a **TypedQuery**. This Xtend wrapper builds an Onyx Query. This is used in combination with the OnyxExtensions static extensions. This extension class provides the **query(PersistenceManager, MetaData<T>)** method, that creates a **TypedQuery** instance to work with.
 
 For example:
 
 ```xtend
-val builder = db.query(Person.Data)
+val query = db.query(Person.Data)
 ```
 
-This builder can be given query commands to filter entities, such as:
+This query can be given commands to filter entities, such as:
 
 	.select
 	.where
@@ -135,7 +135,7 @@ After setting these properties as well as others, you can call .build too genera
 	.update
 	.delete
 
-Below is an explanation of how to use each of the operations the builder provides.
+Below is an explanation of how to use each of the operations the typed query provides.
 
 ## Using where
 
@@ -335,7 +335,7 @@ println(db.query(Address.Data).count)
 
 ## Limiting results
 
-There are some properties you can set on the builder to set how to page through results:
+There are some properties you can set on the query to set how to page through results:
 
 - .skip(amount) : skip [amount] results.
 - .limit(amount) : at maximum return [amount] results.
@@ -344,7 +344,7 @@ There are some properties you can set on the builder to set how to page through 
 
 # Updating entities
 
-You update entities by calling .set [ ] to tell the builder what values to set, and then .update to perform the changes.
+You update entities by calling .set [ ] to tell the query what values to set, and then .update to perform the changes.
 
 ## Setting new values
 

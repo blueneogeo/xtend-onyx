@@ -29,8 +29,8 @@ class OnyxExtensions {
 	}
 	
 	/** Create a query */
-	def static <T extends ManagedEntity, M extends MetaData<T>> TypedQueryBuilder<T, M> query(PersistenceManager session, Class<M> metaDataType) {
-		new TypedQueryBuilder(session, metaDataType)
+	def static <T extends ManagedEntity, M extends MetaData<T>> TypedQuery<T, M> query(PersistenceManager session, Class<M> metaDataType) {
+		new TypedQuery(session, metaDataType)
 	}
 	
 	// QUERY CRITERIA /////////////////////////////////////////////////////////

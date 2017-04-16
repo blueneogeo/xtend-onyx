@@ -44,7 +44,7 @@ import net.sagittarian.onyx.metadata.Selector
  * }
  * </pre>
  */
-class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
+class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 	
 	val PersistenceManager session
 	val Class<M> metaType
@@ -71,7 +71,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	}
 
 	@Fluent
-	def TypedQueryBuilder<T, M> where((M)=>QueryCriteria... criteriaFns) {
+	def TypedQuery<T, M> where((M)=>QueryCriteria... criteriaFns) {
 		val newCriteria = criteriaFns.map [ apply(metadata) ]
 		for(newCriterium : newCriteria) {
 			if(this.criteria === null) {
@@ -97,7 +97,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 *    .list
 	 */	
 	@Fluent
-	def TypedQueryBuilder<T, M> order((M)=>QueryOrder... orderFns) {
+	def TypedQuery<T, M> order((M)=>QueryOrder... orderFns) {
 		if(orders === null) orders = newLinkedList
 		orders.addAll(orderFns.map [ apply(metadata) ])
 		this 
@@ -117,7 +117,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 *    .update
 	 */
 	@Fluent
-	def TypedQueryBuilder<T, M> set((M)=>AttributeUpdate<?>... updateFns) {
+	def TypedQuery<T, M> set((M)=>AttributeUpdate<?>... updateFns) {
 		if(updates === null) updates = newLinkedList
 		updates.addAll(updateFns.map [ apply(metadata) ])
 		this
@@ -127,7 +127,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * Skip the first [rowsToSkip] returned results.
 	 */	
 	@Fluent
-	def TypedQueryBuilder<T, M> skip(int rowsToSkip) {
+	def TypedQuery<T, M> skip(int rowsToSkip) {
 		this.firstRow = rowsToSkip
 		this
 	}
@@ -136,7 +136,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * Return at most [maxResults] entities.
 	 */	
 	@Fluent
-	def TypedQueryBuilder<T, M> limit(int maxResults) {
+	def TypedQuery<T, M> limit(int maxResults) {
 		this.maxResults = maxResults
 		this
 	}
@@ -147,7 +147,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * For example: range(4..6) only returns the 4th, 5th and 6th result. 
 	 */	
 	@Fluent
-	def TypedQueryBuilder<T, M> range(IntegerRange range) {
+	def TypedQuery<T, M> range(IntegerRange range) {
 		this.range = range
 		this
 	}
@@ -158,7 +158,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * For example: page(2, 3) only returns the 4th, 5th and 6th result.
 	 */	
 	@Fluent
-	def TypedQueryBuilder<T, M> page(int pageNr) {
+	def TypedQuery<T, M> page(int pageNr) {
 		this.pageNr = pageNr
 		this
 	}
@@ -167,7 +167,7 @@ class TypedQueryBuilder<T extends IManagedEntity, M extends MetaData<T>> {
 	 * Set the partition to query.
 	 */
 	@Fluent
-	def TypedQueryBuilder<T, M> partition(Object partition) {
+	def TypedQuery<T, M> partition(Object partition) {
 		this.partition = partition
 		this
 	}
