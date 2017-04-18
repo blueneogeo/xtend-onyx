@@ -36,7 +36,7 @@ It has the following features:
   * [Updating entities](#updating-entities)
     * [Setting new values](#setting-new-values)
   * [Deleting entities](#deleting-entities)
-  * [Observing queries](#observing-queries)
+  * [Listening for changes](#listening-for-changes)
 
 # Example
 
@@ -405,53 +405,39 @@ db
 
 The delete call returns the amount of entities that were removed.
 
-# Observing queries
+# Listening for Changes
 
-You can observe changes as they occur on your database with the **.observe [ ]** method. 
-This method wraps the Onyx **QueryListener** interface. For example, to get all users
-and then observe any new additions:
+You can observe changes as they occur on your database with the **.listen()** method.
+You pass a QueryListener<T> implementation to listen for any changes that match a
+query you specify. For example:
 
 ```xtend
-val users = db
+val listener = db
 	.query(User.Data)
-	.observe [
-		onItemAdded [ user |
-			println('user was added: ' + user)
-		]
-	]
-	.list
+	.where [ firstName == 'Jones' ]
+	.listen (new QueryListener<User> {
+	
+		onItemAdded(User jones) {
+		}
+		
+		onItemRemoved(User jones) {
+		}
+		
+		onItemUpdated(User jones) {
+			println('Jones was updated!')
+		}
+	
+	})
+	
+// later:
+listener.stopListening
 ```
 
-The closure you pass to the observe method gets a single parameter: a **QueryObserver<T>**, which lets you
-subscribe to changes with the following methods:
+Now when a user with firstName Jones was updated, the onItemUpdated method will be called with the user.
 
-- onItemAdded [ T item | ]
-- onItemRemoved [ T item | ]
-- onItemUpdated [ T item |]
+When you create a listener, you usually want to keep it open for a while to listen for database updates.
+The listener is attached to the open session. Therefore in order to not leave listeners dangling in memory,
+you always need to stop them.
 
-It also contains the **stopObserving** method, which stops the query listening. It is important you call this method,
-as failing to do so can mean a memory leak. Because of this, you will probably want to assign the passed
-**QueryObserver<T>** to a field so you can call **stopObserving** later. For example:
-
-```xtend
-// class field:
-QueryObserver<T> userObserver
-
-// in some method:
-val users = db
-	.query(User.Data)
-	.observe [ extension observer | // explicitly pass the observer by name, so you can refer to it below
-		onItemAdded [ user |
-			println('user was added: ' + user)
-		]
-		onItemDeleted [ user |
-			println('user was deleted: ' + user)
-		]
-		// assign the observer to the field
-		userObserver = observer
-	]
-	.list
-
-// so later you call:
-userObserver.stopObserving
+When you call **.listen()**, you will get back a **Listener**. You stop listening by calling **Listener.stopListening()**.
 ```

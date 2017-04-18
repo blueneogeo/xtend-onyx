@@ -5,7 +5,6 @@ import com.onyx.persistence.factory.impl.CacheManagerFactory
 import com.onyx.persistence.manager.PersistenceManager
 import com.onyx.persistence.query.Query
 import com.onyx.query.QueryListener
-import net.sagittarian.onyx.QueryObserver
 import net.sagittarian.onyx.test.entities.Address
 import net.sagittarian.onyx.test.entities.Person
 import org.junit.After
@@ -65,7 +64,6 @@ class TestOnyxExtensions {
 	}
 
 
-	var QueryObserver<Person> personObserver
 	int observingAddCount = 0
 
 	/**
@@ -76,12 +74,21 @@ class TestOnyxExtensions {
 	@Test
 	def void testObservingUntilEnd() {
 
-		db.query(Person.Data)
-			.observe [
-				onItemAdded [ observingAddCount++ ]
-				personObserver = it
-			]
-			.list
+		val listener = db
+			.query(Person.Data)
+			.listen(new QueryListener<Person> {
+				
+				override onItemAdded(Person item) {
+					observingAddCount++
+				}
+				
+				override onItemRemoved(Person item) {
+				}
+				
+				override onItemUpdated(Person item) {
+				}
+				
+			})
 
 		for(i : 1..50) {
 			val person = new Person => [ firstName = 'Hello' lastName = 'World' ]
@@ -89,44 +96,11 @@ class TestOnyxExtensions {
 		}
 
 		Assert.assertEquals(50, observingAddCount)
-		personObserver.stopObserving
+		listener.stopListening
 	}
-
-	/**
-	 * Add an observer and keep observing add operations until we feel it is enough (at 20 adds).
-	 */
-	@Test
-	def void testObservingUntilCriterium() {
-
-		db.query(Person.Data)
-			.observe [ extension observer |
-				onItemAdded [ 
-					observingAddCount++
-					personObserver = observer
-					if(observingAddCount === 20) observer.stopObserving
-				]
-			]
-			.list
-
-		for(i : 1..50) {
-			val person = new Person => [ firstName = 'Hello' lastName = 'World' ]
-			db.save(person)
-		}
-
-		Assert.assertEquals(20, observingAddCount)
-		personObserver.stopObserving
-	}
-
 
 	@Test
 	def void testXtendQuery() {
-
-		db.query(Person.Data)
-			.observe [
-				onItemAdded [ println('added person ' + it) ]
-				personObserver = it
-			]
-			.list
 
 		for(i : 1..50) {
 			db.saveEntity( new Person => [ 
@@ -165,8 +139,6 @@ class TestOnyxExtensions {
 		for(result : results2) {
 			println(result)
 		}
-
-		personObserver.stopObserving
 	}
 
 	@Test

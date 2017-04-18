@@ -12,6 +12,7 @@ import java.util.Map
 import net.sagittarian.onyx.annotations.Fluent
 import net.sagittarian.onyx.metadata.MetaData
 import net.sagittarian.onyx.metadata.Selector
+import com.onyx.query.QueryListener
 
 /**
  * Lets you build Onyx queries with static code, using the Data metadata
@@ -52,7 +53,6 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 
 	List<Selector<?>> fields
 	QueryCriteria criteria
-	QueryObserver<T> observer
 	List<AttributeUpdate<?>> updates
 	List<QueryOrder> orders
 	Integer firstRow
@@ -191,10 +191,6 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 			}
 			if(this.pageNr !== null && this.maxResults !== null) {
 				query.firstRow = ((this.pageNr - 1) * query.maxResults) + query.firstRow
-			}
-			if(this.observer !== null) {
-				this.observer.stopListeningFn = [ session.removeChangeListener(query) ]
-				query.changeListener = this.observer.listener
 			}
 		]
 	}
@@ -340,8 +336,8 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 	/**
 	 * Gets the amount of results matching the query
 	 */	
-	def int count() {
-		session.executeLazyQuery(build).size
+	def long count() {
+		session.countForQuery(build)
 	}
 
 	/**
@@ -363,17 +359,14 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 	}
 
 	/**
-	 * Observe changes on the query. Instead of a QueryListener, this uses a QueryObserver, for two reasons:
-	 * <li>Allows you to close the underlying listener by calling stopObserving from within the handlers
-	 * <li>Allows you to chain the listener and still be able to close the underlying listener.
-	 * <p>
-	 * Good practice: in the closure w 
-	 *  
+	 * Listen for any changes that match the query.
+	 * @return Listener that you must stop when you are done listening.
 	 */
-	def observe((QueryObserver<T>)=>void observerHandler) {
-		this.observer = new QueryObserver<T>
-		observerHandler.apply(this.observer)
-		this
+	def Listener listen(QueryListener<T> listener) {
+		val query = build
+		query.changeListener = listener
+		session.executeLazyQueryForResult(query);
+		[ session.removeChangeListener(query) ]
 	}
 
 }
