@@ -84,7 +84,7 @@ It is not yet available on Maven Central, so to use it you have to install it to
 
 To import it after you have gradle installed it locally (see above), add this dependency to your own project:
 
-	compile "net.sagittarian.xtend-onyx-core:1.0"
+	compile "net.sagittarian.xtend-onyx-core:1.2"
 
 and add the Onyx database dependency as well, eg:
 
