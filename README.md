@@ -92,22 +92,7 @@ and add the Onyx database dependency as well, eg:
 
 # Setting up entities
 
-Annotate your every **ManagedEntity** class with:
-
-```xtend
-@OnyxFields
-@OnyxJoins
-```
-
-This will make the metadata from your entity statically available to the xtend-onyx library.
-
-## @OnyxFields
-
-This Active Annotation will add the **Data** subclass to your entity. This **Data** class contains field and relationship methods, based on the ManagedEntity annotations. It is an implementation of the **MetaData<T>** interface.
-
-## @OnyxJoins
-
-This Active Annotation must always be placed *after* @OnyxFields. It will navigate through the relationships between your entities and for each relationship field found, it will add a join method to the **Data** class.
+To use xtend-onyx, you must annotate your entities with the **@OnyxFields** and **OnyxJoins** Active Annotations. This will make the metadata from your entity statically available to the xtend-onyx library.
 
 # Querying entities
 
@@ -118,7 +103,9 @@ These methods can be used in a **TypedQuery**. This Xtend wrapper builds an Onyx
 For example:
 
 ```xtend
-val query = db.query(Person.Data)
+import static extension net.sagittarian.onyx.OnyxExtensions.*
+
+val typedQuery = db.query(Person.Data)
 ```
 
 This query can be given commands to filter entities, such as:
@@ -134,6 +121,7 @@ After setting these properties as well as others, you can call .build too genera
 	.first
 	.update
 	.delete
+	.listen
 
 Below is an explanation of how to use each of the operations the typed query provides.
 
@@ -305,7 +293,7 @@ You can also select multiple fields, in which case you will get a list of map<fi
 ```xtend
 val List<Map<String, ?> results = db
 	.query (User.Data)
-	.list( [ firstName ], [ lastName ])
+	.list( [ firstName ], [ lastName ] )
 ```
 
 These selections also work with lazyList:
@@ -313,7 +301,7 @@ These selections also work with lazyList:
 ```xtend
 val List<Map<String, ?> results = db
 	.query (User.Data)
-	.lazyList( [ firstName ], [ lastName ])
+	.lazyList( [ firstName ], [ lastName ] )
 ```
 
 ## The first result
@@ -413,7 +401,7 @@ query you specify. For example:
 
 ```xtend
 val listener = db
-	.query(User.Data)
+	.query (User.Data)
 	.where [ firstName == 'Jones' ]
 	.listen (new QueryListener<User> {
 	
@@ -440,4 +428,3 @@ The listener is attached to the open session. Therefore in order to not leave li
 you always need to stop them.
 
 When you call **.listen()**, you will get back a **Listener**. You stop listening by calling **Listener.stopListening()**.
-```
