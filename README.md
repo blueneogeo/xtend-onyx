@@ -20,7 +20,7 @@ It has the following features:
   * [Getting Started](#getting-started)
 	  * [Gradle commands](#gradle-commands)
 	  * [In your own project](#in-your-own-project)
-		* [Setting up your entities](#setting-up-your-entities)
+	  * [Setting up your entities](#setting-up-your-entities)
   * [Querying entities](#querying-entities)
 	  * [Creating the TypedQuery](#creating-the-typedquery)
     * [Using where](#using-where)
