@@ -20,9 +20,7 @@ It has the following features:
   * [Getting Started](#getting-started)
     * [Gradle commands](#gradle-commands)
     * [In your own project](#in-your-own-project)
-  * [Setting up entities](#setting-up-entities)
-    * [@OnyxFields](#onyxfields)
-    * [@OnyxJoins](#onyxjoins)
+	  * [Setting up your entities](#setting-up-your-entities)
   * [Querying entities](#querying-entities)
     * [Creating the TypedQuery](#creating-the-typedquery)
     * [Using where](#using-where)
@@ -90,9 +88,37 @@ and add the Onyx database dependency as well, eg:
 
 	compile "com.onyxdevtools:onyx-database:$onyxVersion"
 
-# Setting up entities
+## Setting up your entities
 
-To use xtend-onyx, you must annotate your entities with the **@OnyxFields** and **OnyxJoins** Active Annotations. This will make the metadata from your entity statically available to the xtend-onyx library.
+To use xtend-onyx, you must annotate your entities with the **@OnyxFields** and **OnyxJoins** Active Annotations. This will make the metadata from your entity statically available to the xtend-onyx library. Every entity you annotate will get a **Data** subclass with metadata selectors you can use when querying.
+
+For example, say you have a class Person:
+
+```xtend
+@Entity
+class Person extends IManagedEntity {
+	@Attribute String firstName
+}
+```
+
+You will have to add the xtend-onyx annotations to it like this:
+
+```xtend
+@OnyxFields
+@OnyxJoins
+@Entity
+class Person extends IManagedEntity {
+	@Attribute String firstName
+}
+```
+
+This will create the metadata class Person.Data for you. This class will provide you selectors. Person.Data will have this method added:
+
+```xtend
+def Field<String> firstName()
+```
+
+These selectors you can then use for querying your entities.
 
 # Querying entities
 
@@ -107,6 +133,8 @@ import static extension net.sagittarian.onyx.OnyxExtensions.*
 
 val typedQuery = db.query(Person.Data)
 ```
+
+*Note: you need to pass the metadata class, not the type you are  querying. In this case, that means you need to pass Person.**Data**, not Person. This is the metadata class that was generated for you by the active annotations you added to your entity.*
 
 This query can be given commands to filter entities, such as:
 
