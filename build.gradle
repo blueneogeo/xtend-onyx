@@ -35,12 +35,6 @@ subprojects {
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		maven { url "${artifactory_url}/main"
-			credentials {
-			username artifactory_user
-			password artifactory_password
-			}
-		}
 	}
 
 	xtend {
@@ -69,6 +63,16 @@ subprojects {
 		baseName rootProject.name + '-' + project.name
 	}
 
+	test {
+		testLogging {
+			error {
+				showStackTraces true
+				exceptionFormat "full"
+			}
+			events "passed", "skipped", "failed", "standardOut", "standardError"
+		}
+	}
+
 	jacoco {
 		toolVersion = '0.7.6.201602180812'
 	}
@@ -95,7 +99,6 @@ subprojects {
 project('core') {
 	dependencies {
 		compile "org.eclipse.xtend:org.eclipse.xtend.lib:$xtendVersion"
-		compile "com.kimengi.async:xtend-async-event:1.4.4"
 		provided "com.onyxdevtools:onyx-database:$onyxVersion"
 	}
 }

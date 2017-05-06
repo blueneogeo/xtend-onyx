@@ -235,7 +235,7 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 		val fieldName = field.name
 		fields = #[field]
 		val List<Map<String, E>> list = session.executeQuery(build)
-		list.map [ get(fieldName) as E ]
+		list.map [ get(fieldName) ]
 	}
 
 	/**
