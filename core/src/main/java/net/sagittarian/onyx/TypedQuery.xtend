@@ -58,6 +58,7 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 	Integer firstRow
 	Integer maxResults
 	Integer pageNr
+	boolean isDistinct
 	IntegerRange range
 	Object partition
 	
@@ -120,6 +121,26 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 	def TypedQuery<T, M> set((M)=>AttributeUpdate<?>... updateFns) {
 		if(updates === null) updates = newLinkedList
 		updates.addAll(updateFns.map [ apply(metadata) ])
+		this
+	}
+
+	/** 
+	 * Tell the query that you want a distinct result.
+	 * Alias of .distinct(true).
+	 * Only works for the methods .list [ ] and .lazyList [ ]
+	 */
+	@Fluent
+	def TypedQuery<T, M> distinct() {
+		this.distinct(true)
+	}
+
+	/** 
+	 * Tell the query if you want a distinct result.
+	 * Only works for the methods .list [ ] and .lazyList [ ]
+	 */
+	@Fluent
+	def TypedQuery<T, M> distinct(boolean isDistinctQuery) {
+		this.isDistinct = isDistinctQuery
 		this
 	}
 
@@ -192,6 +213,7 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 			if(this.pageNr !== null && this.maxResults !== null) {
 				query.firstRow = ((this.pageNr - 1) * query.maxResults) + query.firstRow
 			}
+			query.setDistinct(isDistinct)
 		]
 	}
 
@@ -365,7 +387,7 @@ class TypedQuery<T extends IManagedEntity, M extends MetaData<T>> {
 	def Listener listen(QueryListener<T> listener) {
 		val query = build
 		query.changeListener = listener
-		session.executeLazyQueryForResult(query);
+		session.listen(query);
 		[ session.removeChangeListener(query) ]
 	}
 

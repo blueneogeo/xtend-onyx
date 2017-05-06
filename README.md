@@ -332,6 +332,17 @@ val List<Map<String, ?> results = db
 	.lazyList( [ firstName ], [ lastName ] )
 ```
 
+You can tell Onyx that you only want distinct results, meaning that the combination of values for the fields you selected is unique.
+
+```xtend
+val List<Map<String, ?> results = db
+	.query (User.Data)
+	.distinct
+	.list( [ firstName ], [ lastName ] )
+```
+
+If in the above example you had two users named ‘Ben Johnson’, only the first match would be returned.
+
 ## The first result
 
 To simply get the first result only, perform .first:
