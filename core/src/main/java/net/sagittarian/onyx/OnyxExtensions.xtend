@@ -35,6 +35,12 @@ class OnyxExtensions {
 	
 	// QUERY CRITERIA /////////////////////////////////////////////////////////
 	
+	// boolean operators //
+	
+	def static !(QueryCriteria q) {
+		q.not()
+	}
+	
 	def static &&(QueryCriteria q1, QueryCriteria q2) {
 		q1.and(q2)
 	}

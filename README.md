@@ -165,7 +165,17 @@ The metadata instance provides you with the field and join selectors, and the ex
 
 	selector == value
 
-This translates to new QueryCritera(selector.name, EQUALS_TO, value). Similar overloads exist for the following operators: **!= > >= < <=**.
+This translates to new QueryCritera(selector.name, EQUALS_TO, value). Similar overloads exist for the following operators: 
+
+	!  not
+	== equals
+	!= not equals
+	>  greater than
+	>= greater than or equals
+	<  smaller than
+	<= smaller than or equals
+	&& and
+	|| or
 
 Example:
 
@@ -174,6 +184,19 @@ db
 	.query (Address.Data)
 	.where [ street == 'Busystreet' && houseNr >= 20 ]
 ```
+
+You can use full combined expressions, including braces and negation:
+
+```xtend
+db
+	.query (Address.Data)
+	.where [ 
+		!(street == 'Busystreet' || houseNr >= 20) 
+		&& street != null
+	]
+```
+
+The correct operator precedence is automatically enforced (this is a feature of the Xtend operators).
 
 If you use where multiple times on a query, it will perform a logical AND between all of your criteria. This has the same result as the query above:
 
@@ -184,7 +207,7 @@ db
 	.where [ houseNr >= 20 ]
 ```
 
-The @OnyxJoin annotation also lets you use join selectors in queries. For example, given an Address class with a relationship *occupants* of type Person, and each Person entity having a firstName, you can do this:
+The @OnyxJoin annotation lets you use join selectors in queries. For example, given an **Address** class with a relationship **occupants** of type Person, and each **Person** entity having a **firstName**, you can do this:
 
 ```xtend
 db
@@ -364,10 +387,10 @@ println(db.query(Address.Data).count)
 
 There are some properties you can set on the query to set how to page through results:
 
-- .skip(amount) : skip [amount] results.
-- .limit(amount) : at maximum return [amount] results.
-- .page(pageNr) : get a single page of results, given an amount of results per page you set with limit. This can also be combined with skip, the paging will then start after the skipped entities.
-- .range(first..last) : return only the [first]th to at most the [last]th result. Also combines with skip and limit, in that it will start counting after the skipped entities, and return at most limit entities.
+- **.skip(amount)** : skip [amount] results.
+- **.limit(amount)** : at maximum return [amount] results.
+- **.page(pageNr)** : get a single page of results, given an amount of results per page you set with limit. This can also be combined with skip, the paging will then start after the skipped entities.
+- **.range(first..last)** : return only the [first]th to at most the [last]th result. Also combines with skip and limit, in that it will start counting after the skipped entities, and return at most limit entities.
 
 # Updating entities
 
