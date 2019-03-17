@@ -1,7 +1,7 @@
 xtend-onyx
 ==========
 
-This thin library adds a small xtend DSL for querying the [Onyx Database](https://www.onyxdevtools.com/learn/tutorials/index).
+This thin library adds a small xtend DSL for querying the [Onyx Database](https://github.com/OnyxDevTools/onyx-database-parent).
 
 It has the following features:
 
